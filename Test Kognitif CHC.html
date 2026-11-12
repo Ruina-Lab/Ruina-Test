@@ -1,0 +1,1268 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Lab Kognitif CHC</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+/* Konsep: berkas kasus laboratorium forensik. Kertas dingin, tinta navy, label mono, satu aksen teal, pita kuning bukti dipakai hemat. */
+:root{
+  --bg:#E8EDF0; --paper:#F7F9FA; --paper2:#EDF1F3; --ink:#12212B; --ink2:#3A4C58; --muted:#5F7380;
+  --line:#C3CED5; --accent:#0A7487; --accent-ink:#FFFFFF; --accent-soft:#D5EBEF;
+  --tag:#E8B923; --tag-ink:#2B2200; --warn:#9A4B00; --warn-soft:#F6E6D2;
+  --cube-t:#8FD0DA; --cube-l:#52A9B8; --cube-r:#2F7F8E;
+  --font-d:'Space Grotesk',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --font-b:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --font-m:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D151A; --paper:#14202A; --paper2:#1A2A35; --ink:#E7EEF2; --ink2:#B9C8D1; --muted:#8CA1AE;
+    --line:#2C404D; --accent:#4DC2D4; --accent-ink:#06222A; --accent-soft:#15363E;
+    --tag:#E8B923; --tag-ink:#2B2200; --warn:#F0B070; --warn-soft:#3A2A16;
+    --cube-t:#7FD6E4; --cube-l:#44A4B4; --cube-r:#2A7886; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D151A; --paper:#14202A; --paper2:#1A2A35; --ink:#E7EEF2; --ink2:#B9C8D1; --muted:#8CA1AE;
+  --line:#2C404D; --accent:#4DC2D4; --accent-ink:#06222A; --accent-soft:#15363E;
+  --tag:#E8B923; --tag-ink:#2B2200; --warn:#F0B070; --warn-soft:#3A2A16;
+  --cube-t:#7FD6E4; --cube-l:#44A4B4; --cube-r:#2A7886; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 var(--font-b);
+  padding-block:0 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  -webkit-text-size-adjust:100%}
+.wrap{max-width:860px;margin:0 auto}
+h1,h2,h3{font-family:var(--font-d);line-height:1.15;margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:clamp(28px,5.4vw,42px);font-weight:700}
+h2{font-size:clamp(22px,3.6vw,28px);font-weight:600}
+h3{font-size:18px;font-weight:600}
+p{margin:0}
+.eyebrow{font:500 12px/1.3 var(--font-m);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.mono{font-family:var(--font-m)}
+.muted{color:var(--muted)}
+.lead{font-size:18px;color:var(--ink2);max-width:62ch}
+.stack{display:flex;flex-direction:column;gap:16px}
+.stack-l{display:flex;flex-direction:column;gap:28px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.tag{display:inline-block;background:var(--tag);color:var(--tag-ink);font:500 11px/1 var(--font-m);letter-spacing:.08em;padding:5px 7px;border-radius:2px;text-transform:uppercase}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 0 10px;margin-bottom:24px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.top-in{display:flex;align-items:center;gap:14px;justify-content:space-between;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font:600 15px var(--font-d)}
+.segs{list-style:none;margin:0;padding:0;display:flex;gap:4px;flex:1;min-width:140px;max-width:360px}
+.segs li{flex:1;height:6px;background:var(--line);border-radius:1px}
+.segs li.done{background:var(--accent)}
+.segs li.cur{background:var(--tag)}
+.save{font:400 12px var(--font-m);color:var(--muted)}
+
+/* surfaces */
+.card{background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:24px}
+.card.flat{background:transparent}
+.hr{height:1px;background:var(--line);border:0;margin:0}
+
+/* buttons */
+.btn{appearance:none;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);font:600 16px var(--font-b);
+  padding:12px 20px;border-radius:3px;cursor:pointer;min-height:46px}
+.btn:hover{filter:brightness(1.07)}
+.btn:disabled{opacity:.4;cursor:not-allowed;filter:none}
+.btn.ghost{background:transparent;color:var(--accent);border-color:var(--line)}
+.btn.ghost:hover{border-color:var(--accent)}
+.btn.sm{min-height:36px;padding:6px 12px;font-size:14px}
+:focus-visible{outline:3px solid var(--tag);outline-offset:2px}
+
+/* items */
+.item{display:flex;flex-direction:column;gap:20px}
+.item-h{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.q{font-size:19px;line-height:1.45;max-width:62ch;white-space:pre-line}
+.q b{font-weight:600}
+.stim{display:flex;justify-content:center;padding:8px 0}
+.stim svg{max-width:100%;height:auto}
+.opts{display:grid;gap:10px}
+.opts.c1{grid-template-columns:1fr}
+.opts.c2{grid-template-columns:repeat(2,1fr)}
+.opts.c3{grid-template-columns:repeat(3,1fr)}
+.opt{appearance:none;text-align:left;background:var(--paper);color:var(--ink);border:1.5px solid var(--line);border-radius:3px;
+  padding:12px 14px;font:400 16px/1.4 var(--font-b);cursor:pointer;display:flex;gap:12px;align-items:center;min-height:50px}
+.opt:hover{border-color:var(--accent)}
+.opt[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)}
+.opt .k{font:500 12px var(--font-m);color:var(--muted);border:1px solid var(--line);border-radius:2px;width:24px;height:24px;display:grid;place-items:center;flex:none}
+.opt[aria-pressed="true"] .k{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.opt.vis{justify-content:center;padding:8px}
+.opt.vis .k{position:absolute;top:6px;left:6px}
+.opt.vis{position:relative}
+.opt svg{max-width:100%;height:auto;display:block}
+@media (max-width:520px){.opts.c3{grid-template-columns:repeat(2,1fr)}}
+
+.timer{height:6px;background:var(--line);border-radius:1px;overflow:hidden}
+.timer>i{display:block;height:100%;width:100%;background:var(--accent);transform-origin:left}
+.big{font:500 clamp(48px,14vw,96px)/1 var(--font-m);text-align:center;letter-spacing:.04em;min-height:1.1em}
+.bigbox{border:1px solid var(--line);background:var(--paper2);border-radius:4px;padding:28px 12px;display:grid;place-items:center;min-height:160px}
+.field{font:500 24px var(--font-m);padding:12px 14px;border:1.5px solid var(--line);border-radius:3px;background:var(--paper);color:var(--ink);width:100%;max-width:360px;letter-spacing:.12em}
+.field:focus{outline:3px solid var(--tag);outline-offset:1px;border-color:var(--accent)}
+textarea.field{font:400 17px/1.5 var(--font-b);letter-spacing:0;max-width:100%;min-height:200px}
+.pad{display:grid;grid-template-columns:repeat(3,64px);gap:8px;justify-content:center}
+.pad button{min-height:56px;font:500 22px var(--font-m);border:1.5px solid var(--line);background:var(--paper);color:var(--ink);border-radius:3px;cursor:pointer}
+.pad button:hover{border-color:var(--accent)}
+.legend{display:grid;grid-template-columns:repeat(6,1fr);gap:0;border:1px solid var(--line);border-radius:3px;overflow:hidden;background:var(--paper)}
+.legend div{display:flex;flex-direction:column;align-items:center;padding:6px 2px;border-right:1px solid var(--line);gap:2px}
+.legend div:last-child{border-right:0}
+.legend span{font:500 14px var(--font-m);color:var(--muted)}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cmp div{font:500 clamp(22px,6vw,36px) var(--font-m);letter-spacing:.14em;text-align:center;padding:22px 6px;background:var(--paper2);border:1px solid var(--line);border-radius:3px}
+.corsi{position:relative;width:min(100%,340px);aspect-ratio:1;margin:0 auto;background:var(--paper2);border:1px solid var(--line);border-radius:4px}
+.corsi button{position:absolute;width:17%;aspect-ratio:1;transform:translate(-50%,-50%);border:1.5px solid var(--ink2);background:var(--line);border-radius:3px;cursor:pointer;padding:0}
+.corsi button.on{background:var(--tag);border-color:var(--tag)}
+.corsi button.hit{background:var(--accent);border-color:var(--accent)}
+.notice{border:1px solid var(--line);background:var(--warn-soft);color:var(--ink);border-radius:3px;padding:12px 14px;font-size:15px}
+.notice b{color:var(--warn)}
+
+/* result */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.tile{border:1px solid var(--line);background:var(--paper);border-radius:4px;padding:16px;display:flex;flex-direction:column;gap:4px}
+.tile .v{font:600 34px/1 var(--font-d);font-variant-numeric:tabular-nums}
+.tile .l{font-size:14px;color:var(--ink2)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media (max-width:760px){.two{grid-template-columns:1fr}}
+.hbars{display:flex;flex-direction:column;gap:8px}
+.hb{display:grid;grid-template-columns:minmax(96px,150px) 1fr 52px;gap:10px;align-items:center;font-size:14px}
+.hb .nm{color:var(--ink);line-height:1.25}
+.hb .nm small{display:block;color:var(--muted);font:400 11px var(--font-m);letter-spacing:.04em}
+.hb .tr{position:relative;height:22px;background:var(--paper2);border-radius:2px}
+.hb .fl{position:absolute;left:0;top:0;bottom:0;background:var(--accent);border-radius:0 4px 4px 0}
+.hb .ci{position:absolute;top:50%;height:2px;background:var(--ink);transform:translateY(-50%);opacity:.85}
+.hb .ci::before,.hb .ci::after{content:"";position:absolute;top:-4px;width:2px;height:10px;background:var(--ink)}
+.hb .ci::before{left:0}.hb .ci::after{right:0}
+.hb .val{font:500 14px var(--font-m);text-align:right;font-variant-numeric:tabular-nums}
+.hb.sm{grid-template-columns:minmax(110px,190px) 1fr 44px;font-size:13px}
+.hb.sm .tr{height:12px}
+.hb.sm .fl{border-radius:0 3px 3px 0}
+.chip{display:inline-block;font:500 12px var(--font-m);letter-spacing:.03em;padding:3px 8px;border-radius:2px;border:1px solid var(--line);color:var(--ink2);white-space:nowrap}
+.chip.up{background:var(--accent-soft);border-color:var(--accent);color:var(--ink)}
+.chip.dn{background:var(--warn-soft);border-color:var(--warn);color:var(--ink)}
+.abcard{display:flex;flex-direction:column;gap:14px}
+.abhead{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start}
+.abhead .pct{font:600 30px/1 var(--font-d);font-variant-numeric:tabular-nums}
+.abcard h4{font:500 12px var(--font-m);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 4px}
+.abcard ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 12px var(--font-m);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+td.n{font-variant-numeric:tabular-nums;font-family:var(--font-m)}
+.radar text{fill:var(--ink2);font:500 11px var(--font-m)}
+.radar text.c{fill:var(--ink);font:600 13px var(--font-d)}
+details{border:1px solid var(--line);border-radius:3px;background:var(--paper)}
+summary{cursor:pointer;padding:12px 14px;font-weight:600}
+details>div{padding:0 14px 14px}
+.rooms{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.rooms>div{background:var(--paper);padding:14px;display:flex;flex-direction:column;gap:2px}
+.rooms b{font:600 16px var(--font-d)}
+.rooms span{font-size:14px;color:var(--ink2)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media print{.top,.noprint{display:none!important}}
+</style>
+<div class="wrap"><div id="app"></div></div>
+<script>
+'use strict';
+/* ========== util ========== */
+const $ = (s, r = document) => r.querySelector(s);
+function h(tag, attrs, ...kids) {
+  const el = document.createElement(tag);
+  if (attrs) for (const k in attrs) {
+    const v = attrs[k];
+    if (k === 'class') el.className = v;
+    else if (k === 'html') el.innerHTML = v;
+    else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+    else if (v !== false && v != null) el.setAttribute(k, v === true ? '' : v);
+  }
+  for (const kid of kids.flat(Infinity)) {
+    if (kid == null || kid === false) continue;
+    el.append(kid.nodeType ? kid : document.createTextNode(kid));
+  }
+  return el;
+}
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+function mulberry(seed) {
+  let a = seed >>> 0;
+  return function () {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+function shuffle(arr, r = Math.random) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+const pick = (arr, r = Math.random) => arr[Math.floor(r() * arr.length)];
+const LET = 'ABCDEFGH';
+
+/* ========== state ========== */
+const KEY = 'chc-lab-v1';
+let ST = { pos: 0, res: {}, started: false, audio: null, learnedAt: null };
+function load() { try { const s = localStorage.getItem(KEY); if (s) ST = Object.assign(ST, JSON.parse(s)); } catch (e) {} }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(ST)); } catch (e) {} }
+function wipe() { try { localStorage.removeItem(KEY); } catch (e) {} ST = { pos: 0, res: {}, started: false, audio: null, learnedAt: null }; }
+
+/* ========== screens ========== */
+const app = () => $('#app');
+function setScreen(...nodes) { app().replaceChildren(...nodes); window.scrollTo(0, 0); }
+
+function header() {
+  const segs = STATIONS.map((s, i) => h('li', { class: i < ST.pos ? 'done' : i === ST.pos ? 'cur' : '', title: s.room }));
+  return h('header', { class: 'top' },
+    h('div', { class: 'top-in' },
+      h('div', { class: 'brand' }, h('span', { class: 'tag' }, 'Berkas CHC-09'), 'Lab Kognitif'),
+      h('ol', { class: 'segs', 'aria-label': 'Kemajuan: ruang ' + (ST.pos + 1) + ' dari ' + STATIONS.length }, segs),
+      h('span', { class: 'save' }, 'Tersimpan otomatis')));
+}
+
+function card(...kids) { return h('section', { class: 'card stack' }, ...kids); }
+
+/* ========== MCQ engine ========== */
+// item: {q, stim(html|Node), opts:[html|string], a:idx, vis:bool, cols:n, fixed:bool, study:{html,ms,early}, play:fn}
+function renderOpt(o) { return typeof o === 'string' ? o : o.html; }
+
+async function askItem(it, i, n, tag) {
+  const root = h('div', { class: 'item' });
+  const box = h('div', { class: 'stack-l' }, header(), card(root));
+  setScreen(box);
+  const head = h('div', { class: 'item-h' }, h('span', { class: 'eyebrow' }, tag), h('span', { class: 'eyebrow' }, 'Butir ' + (i + 1) + ' / ' + n));
+  if (it.study) {
+    root.replaceChildren(head,
+      h('p', { class: 'q' }, it.study.prompt || 'Perhatikan baik-baik. Tampilan akan hilang sendiri.'),
+      h('div', { class: 'stim', html: it.study.html }),
+      h('div', { class: 'timer' }, h('i', { id: 'tbar' })));
+    const bar = $('#tbar'); bar.style.transition = 'transform ' + it.study.ms + 'ms linear';
+    requestAnimationFrame(() => requestAnimationFrame(() => { bar.style.transform = 'scaleX(0)'; }));
+    if (it.study.early) {
+      await new Promise(res => {
+        const t = setTimeout(res, it.study.ms);
+        root.append(h('div', { class: 'row' }, h('button', { class: 'btn ghost', onclick: () => { clearTimeout(t); res(); } }, 'Sudah selesai membaca')));
+      });
+    } else await sleep(it.study.ms);
+  }
+  // shuffle options (keep original index mapping)
+  const order = it.fixed ? it.opts.map((_, k) => k) : shuffle(it.opts.map((_, k) => k));
+  let sel = null, plays = 0;
+  const cols = it.cols || (it.vis ? 2 : 1);
+  const optEls = order.map((orig, pos) => {
+    const b = h('button', { class: 'opt' + (it.vis ? ' vis' : ''), type: 'button', 'aria-pressed': 'false', onclick: () => {
+      sel = orig; optEls.forEach((e, p) => e.setAttribute('aria-pressed', order[p] === orig ? 'true' : 'false')); next.disabled = false;
+    } }, h('span', { class: 'k' }, LET[pos]), h('span', { html: renderOpt(it.opts[orig]) }));
+    return b;
+  });
+  const next = h('button', { class: 'btn', disabled: true }, i + 1 < n ? 'Kunci jawaban & lanjut' : 'Kunci jawaban & selesai');
+  const parts = [head];
+  if (it.q) parts.push(h('p', { class: 'q', html: it.q }));
+  if (it.stim) parts.push(h('div', { class: 'stim' }, typeof it.stim === 'string' ? h('div', { html: it.stim }) : it.stim));
+  if (it.play) {
+    const pb = h('button', { class: 'btn ghost', type: 'button' }, 'Putar suara (maks. 2 kali)');
+    pb.onclick = async () => {
+      if (plays >= 2) return; plays++;
+      pb.disabled = true; const dur = await it.play(); await sleep(dur + 200);
+      pb.textContent = plays >= 2 ? 'Pemutaran habis' : 'Putar sekali lagi (sisa ' + (2 - plays) + ')';
+      pb.disabled = plays >= 2;
+    };
+    parts.push(h('div', { class: 'row' }, pb));
+  }
+  parts.push(h('div', { class: 'opts c' + cols }, optEls));
+  parts.push(h('div', { class: 'row' }, next));
+  root.replaceChildren(...parts);
+  return new Promise(res => { next.onclick = () => res(sel); });
+}
+
+async function runMCQ(items, tag) {
+  let c = 0, g = 0;
+  for (let i = 0; i < items.length; i++) {
+    const sel = await askItem(items[i], i, items.length, tag);
+    if (sel === items[i].a) c++;
+    g += 1 / items[i].opts.length;
+  }
+  return { c, n: items.length, g: g / items.length };
+}
+
+/* ========== generic helpers for custom tasks ========== */
+function stageShell(tag, title) {
+  const body = h('div', { class: 'stack' });
+  setScreen(h('div', { class: 'stack-l' }, header(), card(h('div', { class: 'item-h' }, h('span', { class: 'eyebrow' }, tag), h('span', { class: 'eyebrow' }, title || '')), body)));
+  return body;
+}
+function timerBar(ms) {
+  const bar = h('i'); const t = h('div', { class: 'timer' }, bar);
+  bar.style.transition = 'transform ' + ms + 'ms linear';
+  requestAnimationFrame(() => requestAnimationFrame(() => { bar.style.transform = 'scaleX(0)'; }));
+  return t;
+}
+// show a "ready" card then resolve on click
+function ready(body, text, label = 'Mulai') {
+  return new Promise(res => {
+    body.replaceChildren(h('p', { class: 'q' }, text), h('div', { class: 'row' }, h('button', { class: 'btn', onclick: () => res() }, label)));
+  });
+}
+/* ========== GENERATOR: matriks pola (Gf-I) ========== */
+function shapeSVG(shape, cx, cy, r, fill) {
+  const st = 'stroke:var(--ink);stroke-width:1.8;stroke-linejoin:round;' + (fill === 0 ? 'fill:none' : fill === 1 ? 'fill:var(--accent);fill-opacity:.38' : 'fill:var(--accent)');
+  if (shape === 0) return `<circle cx="${cx}" cy="${cy}" r="${r}" style="${st}"/>`;
+  if (shape === 1) return `<rect x="${cx - r}" y="${cy - r}" width="${2 * r}" height="${2 * r}" style="${st}"/>`;
+  const p = [[cx, cy - r * 1.12], [cx + r * 1.08, cy + r * .86], [cx - r * 1.08, cy + r * .86]].map(q => q.map(v => +v.toFixed(1)).join(',')).join(' ');
+  return `<polygon points="${p}" style="${st}"/>`;
+}
+function cellInner(a, ox, oy) {
+  const k = a.count + 1, r = [8, 11, 14][a.size];
+  let s = '';
+  for (let i = 0; i < k; i++) s += shapeSVG(a.shape, ox + 50 + (i - (k - 1) / 2) * 31, oy + 50, r, a.fill);
+  return s;
+}
+function cellSVG(a) { return `<svg viewBox="0 0 100 100" width="96" height="96" role="img" aria-label="pilihan jawaban"><rect x="1" y="1" width="98" height="98" style="fill:var(--paper);stroke:var(--line);stroke-width:1.5"/>${cellInner(a, 0, 0)}</svg>`; }
+
+const MATRIX_SPECS = [
+  { shape: ['prog'], size: ['const'], fill: ['const'], count: ['const'] },
+  { shape: ['latin', 1], size: ['const'], fill: ['prog'], count: ['const'] },
+  { shape: ['prog'], size: ['rowconst'], fill: ['latin', 1], count: ['const'] },
+  { shape: ['latin', 1], size: ['prog'], fill: ['rowconst'], count: ['const'] },
+  { shape: ['latin', 2], size: ['latin', 1], fill: ['prog'], count: ['rowconst'] },
+];
+function makeMatrix(spec, seed) {
+  const R = mulberry(seed), names = ['shape', 'size', 'fill', 'count'];
+  const rule = {};
+  names.forEach(n => {
+    const [type, k] = spec[n], off = Math.floor(R() * 3), v0 = Math.floor(R() * 3);
+    rule[n] = (r, c) => type === 'const' ? v0 : type === 'rowconst' ? (r + off) % 3 : type === 'prog' ? (off + c) % 3 : (off + r + (k || 1) * c) % 3;
+  });
+  const cell = (r, c) => ({ shape: rule.shape(r, c), size: rule.size(r, c), fill: rule.fill(r, c), count: rule.count(r, c) });
+  const ans = cell(2, 2), key = a => names.map(n => a[n]).join('');
+  const pool = [cell(2, 1), cell(1, 2), cell(2, 0), cell(0, 2)], seen = new Set([key(ans)]), dis = [];
+  for (const p of shuffle(pool, R)) if (!seen.has(key(p)) && dis.length < 2) { seen.add(key(p)); dis.push(p); }
+  const varying = names.filter(n => spec[n][0] !== 'const');
+  let guard = 0;
+  while (dis.length < 5 && guard++ < 200) {
+    const d = Object.assign({}, ans), m = 1 + Math.floor(R() * 2);
+    shuffle(guard < 60 && varying.length ? varying : names, R).slice(0, m).forEach(n => { d[n] = (d[n] + 1 + Math.floor(R() * 2)) % 3; });
+    if (!seen.has(key(d))) { seen.add(key(d)); dis.push(d); }
+  }
+  let g = '';
+  for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) {
+    const ox = c * 109, oy = r * 109;
+    g += `<rect x="${ox + 1}" y="${oy + 1}" width="98" height="98" style="fill:var(--paper);stroke:var(--line);stroke-width:1.5"/>`;
+    g += (r === 2 && c === 2) ? `<text x="${ox + 50}" y="${oy + 64}" text-anchor="middle" style="font:600 44px var(--font-d);fill:var(--muted)">?</text>` : cellInner(cell(r, c), ox, oy);
+  }
+  const stim = `<svg viewBox="0 0 328 328" width="300" height="300" role="img" aria-label="Matriks 3 kali 3 dengan sel kanan bawah kosong">${g}</svg>`;
+  return { stim, opts: [ans, ...dis].map(cellSVG), a: 0, vis: true, cols: 3, q: 'Pola apa yang melengkapi sel kosong?' };
+}
+
+/* ========== GENERATOR: kubus isometrik (Gv-SR) ========== */
+const ROTS = (() => {
+  const mul = (A, B) => A.map((_, i) => B[0].map((__, j) => A[i][0] * B[0][j] + A[i][1] * B[1][j] + A[i][2] * B[2][j]));
+  const gens = [[[1, 0, 0], [0, 0, -1], [0, 1, 0]], [[0, 0, 1], [0, 1, 0], [-1, 0, 0]], [[0, -1, 0], [1, 0, 0], [0, 0, 1]]];
+  const seen = new Map(), I = [[1, 0, 0], [0, 1, 0], [0, 0, 1]], q = [I];
+  seen.set(JSON.stringify(I), I);
+  while (q.length) { const m = q.pop(); for (const g of gens) { const n = mul(g, m), k = JSON.stringify(n); if (!seen.has(k)) { seen.set(k, n); q.push(n); } } }
+  return [...seen.values()];
+})();
+const applyM = (M, p) => [0, 1, 2].map(i => M[i][0] * p[0] + M[i][1] * p[1] + M[i][2] * p[2]);
+function normCubes(cs) { const mn = [0, 1, 2].map(i => Math.min(...cs.map(c => c[i]))); return cs.map(c => c.map((v, i) => v - mn[i])); }
+const cubeKey = cs => normCubes(cs).map(c => c.join(',')).sort().join(';');
+const canon = cs => ROTS.map(M => cubeKey(cs.map(p => applyM(M, p)))).sort()[0];
+const mirrorX = cs => cs.map(p => [-p[0], p[1], p[2]]);
+function growShape(n, R) {
+  const D = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]];
+  for (let tries = 0; tries < 500; tries++) {
+    const cs = [[0, 0, 0]], has = p => cs.some(c => c[0] === p[0] && c[1] === p[1] && c[2] === p[2]);
+    while (cs.length < n) {
+      const b = pick(cs, R), d = pick(D, R), p = [b[0] + d[0], b[1] + d[1], b[2] + d[2]];
+      if (!has(p) && p.every(v => Math.abs(v) <= 2)) cs.push(p);
+    }
+    const nc = normCubes(cs), ext = [0, 1, 2].map(i => Math.max(...nc.map(c => c[i])));
+    if (ext.some(e => e < 1)) continue;
+    if (canon(cs) === canon(mirrorX(cs))) continue; // harus kiral
+    return nc;
+  }
+  return null;
+}
+function isoParts(cubes) {
+  const c = Math.cos(Math.PI / 6), P = (x, y, z) => [(x - y) * c, (x + y) * .5 - z];
+  const sorted = cubes.slice().sort((a, b) => (a[0] + a[1] + a[2]) - (b[0] + b[1] + b[2]) || a[2] - b[2]);
+  const faces = [], keys = [];
+  for (const [x, y, z] of sorted) {
+    faces.push({ f: 'cube-l', pts: [P(x, y + 1, z), P(x + 1, y + 1, z), P(x + 1, y + 1, z + 1), P(x, y + 1, z + 1)] });
+    faces.push({ f: 'cube-r', pts: [P(x + 1, y, z), P(x + 1, y + 1, z), P(x + 1, y + 1, z + 1), P(x + 1, y, z + 1)] });
+    faces.push({ f: 'cube-t', pts: [P(x, y, z + 1), P(x + 1, y, z + 1), P(x + 1, y + 1, z + 1), P(x, y + 1, z + 1)] });
+    keys.push('L' + (x - y - 1) + ',' + (x + y + 1 - 2 * z), 'R' + (x - y + 1) + ',' + (x + y + 1 - 2 * z), 'T' + (x - y) + ',' + (x + y - 2 * z - 2));
+  }
+  return { faces, sig: [...new Set(keys)].sort().join('|') };
+}
+function isoSVG(cubes, w = 150) {
+  const { faces } = isoParts(cubes), S = 18;
+  const all = faces.flatMap(f => f.pts);
+  const x0 = Math.min(...all.map(p => p[0])) * S - 6, x1 = Math.max(...all.map(p => p[0])) * S + 6;
+  const y0 = Math.min(...all.map(p => p[1])) * S - 6, y1 = Math.max(...all.map(p => p[1])) * S + 6;
+  const path = faces.map(f => `<polygon points="${f.pts.map(p => (p[0] * S).toFixed(1) + ',' + (p[1] * S).toFixed(1)).join(' ')}" style="fill:var(--${f.f});stroke:var(--ink);stroke-width:1.3;stroke-linejoin:round"/>`).join('');
+  const W = x1 - x0, H = y1 - y0, sc = w / Math.max(W, H);
+  return `<svg viewBox="${x0.toFixed(1)} ${y0.toFixed(1)} ${W.toFixed(1)} ${H.toFixed(1)}" width="${(W * sc).toFixed(0)}" height="${(H * sc).toFixed(0)}" role="img" aria-label="Susunan kubus">${path}</svg>`;
+}
+function makeRotation(n, seed) {
+  const R = mulberry(seed);
+  for (let t = 0; t < 200; t++) {
+    const base = growShape(n, R); if (!base) continue;
+    const view = cs => isoParts(cs).sig;
+    const tgt = normCubes(base.map(p => applyM(pick(ROTS, R), p))), tsig = view(tgt);
+    const used = new Set([tsig]); let ok = true;
+    const mk = (cs) => { for (let k = 0; k < 60; k++) { const r = normCubes(cs.map(p => applyM(pick(ROTS, R), p))), s = view(r); if (!used.has(s)) { used.add(s); return r; } } return null; };
+    const cor = mk(base); if (!cor) continue;
+    const dis = []; const mir = mirrorX(base);
+    for (let i = 0; i < 3; i++) { const d = mk(mir); if (!d) { ok = false; break; } dis.push(d); }
+    if (!ok) continue;
+    return { stim: isoSVG(tgt, 170), opts: [cor, ...dis].map(c => isoSVG(c, 130)), a: 0, vis: true, cols: 2, q: 'Mana susunan kubus yang sama dengan contoh di atas, hanya diputar? (Yang lain adalah bayangan cermin.)' };
+  }
+  throw new Error('gagal membuat butir rotasi');
+}
+
+/* ========== GENERATOR: lipat kertas (Gv-Vz) ========== */
+const refl = { V: ([x, y]) => [6 - x, y], H: ([x, y]) => [x, 6 - y], D: ([x, y]) => [y, x] };
+function unfold(holes, folds) {
+  let pts = holes.map(h => h.slice());
+  for (let i = folds.length - 1; i >= 0; i--) pts = pts.concat(pts.map(refl[folds[i]]));
+  const seen = new Set(); return pts.filter(p => { const k = p.join(','); if (seen.has(k)) return false; seen.add(k); return true; });
+}
+const ps = 11, po = 6;
+function arrow(x1, y1, x2, y2) {
+  const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L, hx = x2 - ux * 1.1, hy = y2 - uy * 1.1;
+  const f = v => (v * ps + po).toFixed(1);
+  return `<path d="M${f(x1)} ${f(y1)}L${f(x2)} ${f(y2)}M${f(hx - uy * .6)} ${f(hy + ux * .6)}L${f(x2)} ${f(y2)}L${f(hx + uy * .6)} ${f(hy - ux * .6)}" style="fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round;stroke-linejoin:round"/>`;
+}
+function paperPanel(region, fold, holes) {
+  const f = v => (v * ps + po).toFixed(1);
+  let s = '';
+  if (region === 'tri') s += `<polygon points="${f(0)},${f(0)} ${f(6)},${f(0)} ${f(6)},${f(6)}" style="fill:var(--paper);stroke:var(--ink);stroke-width:1.8"/>`;
+  else { const [a, b, c, d] = region; s += `<rect x="${f(a)}" y="${f(b)}" width="${((c - a) * ps).toFixed(1)}" height="${((d - b) * ps).toFixed(1)}" style="fill:var(--paper);stroke:var(--ink);stroke-width:1.8"/>`; }
+  const dash = 'stroke:var(--accent);stroke-width:1.8;stroke-dasharray:4 3;fill:none';
+  if (fold === 'V1') s += `<line x1="${f(3)}" y1="${f(0)}" x2="${f(3)}" y2="${f(6)}" style="${dash}"/>` + arrow(5.4, 1.4, 1.8, 1.4);
+  if (fold === 'H1') s += `<line x1="${f(0)}" y1="${f(3)}" x2="${f(6)}" y2="${f(3)}" style="${dash}"/>` + arrow(1.4, 5.4, 1.4, 1.8);
+  if (fold === 'V2') s += `<line x1="${f(3)}" y1="${f(0)}" x2="${f(3)}" y2="${f(3)}" style="${dash}"/>` + arrow(5.4, 1.4, 1.8, 1.4);
+  if (fold === 'H2') s += `<line x1="${f(0)}" y1="${f(3)}" x2="${f(3)}" y2="${f(3)}" style="${dash}"/>` + arrow(1.4, 5.4, 1.4, 1.8);
+  if (fold === 'D1') s += `<line x1="${f(0)}" y1="${f(0)}" x2="${f(6)}" y2="${f(6)}" style="${dash}"/>` + arrow(1.2, 4.8, 3.2, 2.8);
+  (holes || []).forEach(p => { s += `<circle cx="${f(p[0])}" cy="${f(p[1])}" r="${(.4 * ps).toFixed(1)}" style="fill:var(--ink)"/>`; });
+  return `<svg viewBox="0 0 ${6 * ps + 2 * po} ${6 * ps + 2 * po}" width="${6 * ps + 2 * po + 24}" height="${6 * ps + 2 * po + 24}" aria-hidden="true">${s}</svg>`;
+}
+function resultSquare(holes) {
+  const f = v => (v * 14 + 5).toFixed(1);
+  const s = `<rect x="5" y="5" width="84" height="84" style="fill:var(--paper);stroke:var(--ink);stroke-width:1.8"/>` + holes.map(p => `<circle cx="${f(p[0])}" cy="${f(p[1])}" r="4.6" style="fill:var(--ink)"/>`).join('');
+  return `<svg viewBox="0 0 94 94" width="110" height="110" role="img" aria-label="Kertas terbuka">${s}</svg>`;
+}
+const FOLD_ITEMS = [
+  { folds: ['V'], holes: [[1.5, 2.5]] },
+  { folds: ['H', 'V'], holes: [[1.5, 2.5]] },
+  { folds: ['D'], holes: [[4.5, 1.5], [5.5, 3.5]] },
+  { folds: ['V', 'H'], holes: [[0.5, 1.5], [2.5, 2.5]] },
+];
+function makeFold(spec, seed) {
+  const R = mulberry(seed), { folds, holes } = spec;
+  const correct = unfold(holes, folds), key = a => a.map(p => p.join(',')).sort().join(';');
+  const seen = new Set([key(correct)]), dis = [];
+  const add = a => { if (a.length && !seen.has(key(a))) { seen.add(key(a)); dis.push(a); } };
+  add(unfold(holes, folds.slice(0, 1)));                                   // hanya satu lipatan dibuka
+  add(correct.map((p, i) => i === 0 ? [6 - p[0], 6 - p[1]] : p));           // satu lubang salah tempat
+  add(unfold(holes, folds.map(f => f === 'V' ? 'H' : f === 'H' ? 'V' : f))); // arah lipatan tertukar
+  let g = 0;
+  while (dis.length < 3 && g++ < 100) {
+    const a = correct.map(p => p.slice()), i = Math.floor(R() * a.length);
+    if (R() < .5) a.splice(i, 1); else { a[i][0] = clamp(a[i][0] + (R() < .5 ? -1 : 1), .5, 5.5); }
+    add(a);
+  }
+  const panels = [];
+  const f1 = folds[0];
+  panels.push(paperPanel([0, 0, 6, 6], f1 === 'D' ? 'D1' : f1 + '1', []));
+  if (folds.length === 2) {
+    const reg = f1 === 'V' ? [0, 0, 3, 6] : [0, 0, 6, 3];
+    panels.push(paperPanel(reg, folds[1] === 'V' ? 'V2' : 'H2', []));
+  }
+  const fin = folds.length === 2 ? [0, 0, 3, 3] : f1 === 'V' ? [0, 0, 3, 6] : f1 === 'H' ? [0, 0, 6, 3] : 'tri';
+  panels.push(paperPanel(fin, null, holes));
+  const stim = '<div class="row" style="justify-content:center;gap:6px">' + panels.map((p, i) => (i ? '<span class="muted mono">&rarr;</span>' : '') + p).join('') + '</div>';
+  const opts = [correct, ...dis.slice(0, 3)].map(resultSquare);
+  return { q: 'Kertas dilipat seperti pada gambar (garis putus-putus = lipatan, panah = arah lipat), lalu dilubangi di bagian terakhir. Seperti apa kertas setelah dibuka sepenuhnya?', stim, opts, a: 0, vis: true, cols: 2 };
+}
+
+/* ========== GENERATOR: memori visual (Gv-MV) ========== */
+function gridSVG(cells, s = 26) {
+  let g = '';
+  for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) {
+    const on = cells.includes(r * 4 + c);
+    g += `<rect x="${c * s + 2}" y="${r * s + 2}" width="${s - 3}" height="${s - 3}" style="fill:${on ? 'var(--accent)' : 'var(--paper2)'};stroke:var(--line);stroke-width:1"/>`;
+  }
+  return `<svg viewBox="0 0 ${4 * s + 3} ${4 * s + 3}" width="${4 * s + 3}" height="${4 * s + 3}" role="img" aria-label="Pola kotak">${g}</svg>`;
+}
+function makeGrid(k, seed) {
+  const R = mulberry(seed), cells = shuffle([...Array(16).keys()], R).slice(0, k).sort((a, b) => a - b);
+  const key = a => a.slice().sort((x, y) => x - y).join(), seen = new Set([key(cells)]), dis = [];
+  let g = 0;
+  while (dis.length < 3 && g++ < 200) {
+    const a = cells.slice(), moves = k >= 7 ? 1 : 1 + Math.floor(R() * 2);
+    for (let m = 0; m < moves; m++) {
+      const i = Math.floor(R() * a.length), free = [...Array(16).keys()].filter(v => !a.includes(v));
+      a[i] = pick(free, R);
+    }
+    if (!seen.has(key(a))) { seen.add(key(a)); dis.push(a); }
+  }
+  return { study: { html: gridSVG(cells, 34), ms: 5000, prompt: 'Ingat letak kotak yang terisi. Tampilan akan hilang dalam 5 detik.' }, q: 'Pola mana yang tadi kamu lihat?', opts: [cells, ...dis].map(c => gridSVG(c, 24)), a: 0, vis: true, cols: 2 };
+}
+
+/* ========== AUDIO (Web Audio) ========== */
+const AU = {
+  ctx: null,
+  init() { if (!this.ctx) { const C = window.AudioContext || window.webkitAudioContext; if (C) this.ctx = new C(); } if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume(); return this.ctx; },
+  tone(f, t0, dur, vol = .22) {
+    const c = this.ctx, o = c.createOscillator(), g = c.createGain();
+    o.type = 'sine'; o.frequency.value = f;
+    g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(vol, t0 + .015); g.gain.setValueAtTime(vol, Math.max(t0 + .016, t0 + dur - .03)); g.gain.linearRampToValueAtTime(0, t0 + dur);
+    o.connect(g); g.connect(c.destination); o.start(t0); o.stop(t0 + dur + .02);
+  },
+  playTones(list) { // list: [{f, at(ms), dur(ms)}] -> returns total ms
+    if (!this.init()) return 0;
+    const t = this.ctx.currentTime + .08; let end = 0;
+    list.forEach(n => { this.tone(n.f, t + n.at / 1000, n.dur / 1000); end = Math.max(end, n.at + n.dur); });
+    return end + 100;
+  },
+};
+/* ========== ISI BUTIR (Bahasa Indonesia) ========== */
+const mc = (q, opts, a, extra) => Object.assign({ q, opts, a }, extra || {});
+
+/* ---- Gf ---- */
+const GF_RQ = [
+  mc('Lanjutkan deret ini:\n<b>2, 6, 18, 54, ...</b>', ['108', '162', '148', '216'], 1),
+  mc('Lanjutkan deret ini:\n<b>2, 3, 5, 8, 12, 17, ...</b>', ['21', '22', '23', '24'], 2),
+  mc('Lanjutkan deret ini:\n<b>3, 5, 9, 17, 33, ...</b>', ['49', '57', '65', '66'], 2),
+  mc('Lanjutkan deret ini:\n<b>5, 7, 12, 19, 31, ...</b>', ['43', '47', '50', '52'], 2),
+  mc('Jika 2A + B = 11 dan A + 2B = 10, berapakah A + B?', ['6', '7', '8', '9'], 1),
+];
+const GF_RG = [
+  mc('Jika alarm berbunyi, maka pintu terkunci otomatis. Pintu <b>tidak</b> terkunci. Kesimpulan yang pasti benar?', ['Alarm berbunyi', 'Alarm tidak berbunyi', 'Pintu rusak', 'Tidak ada kesimpulan yang pasti'], 1),
+  mc('Lima peneliti antre: B berdiri di depan C. D tepat di belakang C. A berdiri di belakang D. E berdiri di depan B. Siapa yang berdiri di urutan ke-3?', ['B', 'C', 'D', 'E'], 1),
+  mc('Semua sampel di Rak A sudah diberi label. Beberapa sampel yang sudah berlabel sudah diuji. Pernyataan mana yang <b>pasti</b> benar?', ['Semua sampel di Rak A sudah diuji', 'Beberapa sampel di Rak A sudah diuji', 'Tidak ada sampel di Rak A yang diuji', 'Tidak satu pun pernyataan di atas pasti benar'], 3),
+];
+
+/* ---- Gc ---- */
+const GC_VL = [
+  mc('Arti kata <b>ambigu</b> adalah ...', ['Bermakna ganda', 'Sangat jelas', 'Tidak penting', 'Berlawanan'], 0),
+  mc('Kata yang paling dekat maknanya dengan <b>lugas</b> adalah ...', ['Berbelit-belit', 'Langsung dan apa adanya', 'Rumit', 'Halus'], 1),
+  mc('<b>Skeptis</b> berarti ...', ['Mudah percaya', 'Kurang percaya atau selalu meragukan', 'Marah', 'Pasrah'], 1),
+  mc('<b>Hegemoni</b> paling tepat diartikan ...', ['Persatuan sukarela antarbangsa', 'Dominasi satu pihak atas pihak lain', 'Pembagian kekuasaan merata', 'Pemberontakan'], 1),
+  mc('Sesuatu yang bersifat <b>efemeral</b> adalah ...', ['Abadi', 'Hanya sebentar atau cepat berlalu', 'Sangat besar', 'Tersembunyi'], 1),
+];
+const GC_K0 = [
+  mc('Konferensi Asia-Afrika tahun 1955 diselenggarakan di kota ...', ['Jakarta', 'Bandung', 'Yogyakarta', 'Surabaya'], 1),
+  mc('Gas yang paling banyak terkandung di atmosfer Bumi adalah ...', ['Oksigen', 'Karbon dioksida', 'Nitrogen', 'Argon'], 2),
+  mc('Organel sel yang menghasilkan sebagian besar ATP adalah ...', ['Ribosom', 'Mitokondria', 'Badan Golgi', 'Lisosom'], 1),
+  mc('Siapa penulis novel <i>Bumi Manusia</i>?', ['Pramoedya Ananta Toer', 'Chairil Anwar', 'Andrea Hirata', 'Mochtar Lubis'], 0),
+  mc('<i>The Wealth of Nations</i> (1776) ditulis oleh ...', ['David Ricardo', 'Karl Marx', 'Adam Smith', 'John Maynard Keynes'], 2),
+  mc('Perjanjian yang mengakhiri Perang Tiga Puluh Tahun di Eropa pada 1648 disebut ...', ['Perjanjian Versailles', 'Perdamaian Westfalia', 'Kongres Wina', 'Perjanjian Utrecht'], 1),
+];
+const GC_LD = [
+  mc('Dokter : Stetoskop = Petani : ...', ['Sawah', 'Cangkul', 'Padi', 'Hujan'], 1),
+  mc('Kata : Kalimat = Bab : ...', ['Buku', 'Halaman', 'Huruf', 'Penulis'], 0),
+  mc('Transparan : Buram = Konkret : ...', ['Nyata', 'Abstrak', 'Padat', 'Jelas'], 1),
+  mc('Epistemologi : Pengetahuan = Etika : ...', ['Keindahan', 'Moralitas', 'Keberadaan', 'Logika'], 1),
+];
+
+/* ---- Gq ---- */
+const GQ_KM = [
+  mc('Hasil dari <b>3/4 + 5/8</b> adalah ...', ['8/12', '11/8', '15/32', '9/8'], 1),
+  mc('Jika f(x) = 2x² − 3x + 1, maka f(−2) = ...', ['3', '9', '15', '−13'], 2),
+  mc('Jumlah besar sudut dalam sebuah segi enam adalah ...', ['540°', '720°', '900°', '1080°'], 1),
+  mc('Jika log₂ x = 5, maka x = ...', ['10', '25', '32', '64'], 2),
+  mc('Turunan dari f(x) = x³ − 4x adalah ...', ['3x² − 4', 'x² − 4', '3x³ − 4', '3x² − 4x'], 0),
+];
+const GQ_A3 = [
+  mc('Harga laptop Rp12.000.000 diberi diskon 15%, lalu dipotong Rp500.000 lagi. Harga akhirnya?', ['Rp9.700.000', 'Rp9.200.000', 'Rp10.200.000', 'Rp9.500.000'], 0),
+  mc('Rata-rata 5 nilai ujian adalah 78. Setelah satu nilai ditambahkan, rata-ratanya menjadi 80. Berapa nilai yang ditambahkan?', ['84', '88', '90', '92'], 2),
+  mc('Sebuah mobil menempuh 150 km dalam 2,5 jam dengan kecepatan tetap. Berapa lama untuk menempuh 240 km?', ['3,5 jam', '4 jam', '4,5 jam', '5 jam'], 1),
+  mc('Pipa A dapat mengisi bak dalam 6 jam, pipa B dalam 3 jam. Jika dibuka bersamaan, bak penuh dalam ...', ['1,5 jam', '2 jam', '2,5 jam', '4,5 jam'], 1),
+  mc('Uang Ani dan Budi berbanding 3 : 5 dengan total Rp2.400.000. Ani memberi Rp150.000 kepada Budi. Berapa selisih uang mereka sekarang?', ['Rp600.000', 'Rp750.000', 'Rp900.000', 'Rp1.050.000'], 2),
+  mc('Sebuah kantong berisi 4 bola merah dan 6 bola biru. Dua bola diambil berturut-turut tanpa pengembalian. Peluang keduanya merah?', ['4/25', '2/15', '1/5', '3/10'], 1),
+];
+
+/* ---- Grw ---- */
+const GRW_SG = [
+  mc('Penulisan yang <b>baku</b> adalah ...', ['resiko', 'risiko', 'rizeko', 'resico'], 1),
+  mc('Penulisan yang <b>baku</b> adalah ...', ['nasehat', 'nasihad', 'nasihat', 'nasyihat'], 2),
+  mc('Penulisan yang <b>baku</b> adalah ...', ['hakekat', 'hakikat', 'hakiqat', 'hakekad'], 1),
+  mc('Penulisan yang <b>baku</b> adalah ...', ['mempengaruhi', 'memperngaruhi', 'memengaruhi', 'mengpengaruhi'], 2),
+];
+const GRW_EU = [
+  mc('Kalimat yang paling <b>efektif</b>:', ['Para peserta-peserta seminar telah hadir.', 'Para peserta seminar telah hadir.', 'Peserta-peserta para seminar hadir.', 'Para peserta seminar-seminar hadir.'], 1),
+  mc('Kalimat dengan tanda baca yang benar:', ['Ia membeli apel, jeruk, dan, mangga.', 'Ia membeli apel, jeruk, dan mangga.', 'Ia membeli apel jeruk, dan mangga.', 'Ia membeli, apel, jeruk dan mangga.'], 1),
+  mc('Kalimat yang menggunakan bahasa <b>baku</b> dengan tepat:', ['Hasil uji membuktikan bahwasanya hipotesis diterima.', 'Hasil uji membuktikan bahwa hipotesis diterima.', 'Hasil uji membuktikan hipotesis, bahwa diterima.', 'Hasil uji membuktikan, bahwa, hipotesis diterima.'], 1),
+];
+const PASS1 = 'Efek plasebo adalah perbaikan kondisi yang dialami seseorang setelah menerima perlakuan tanpa zat aktif, misalnya pil gula, karena ia yakin perlakuan itu bermanfaat. Dalam uji klinis, kelompok yang menerima plasebo dibandingkan dengan kelompok yang menerima obat sungguhan. Jika kedua kelompok membaik dalam tingkat yang sama, obat tersebut tidak dapat dikatakan efektif. Menariknya, efek plasebo tampak paling kuat pada keluhan yang dinilai secara subjektif, seperti nyeri atau mual, dan jauh lebih lemah pada ukuran objektif seperti kadar gula darah. Karena itu, peneliti biasanya merancang uji buta ganda: baik pasien maupun petugas yang menilai tidak mengetahui siapa yang menerima obat, sehingga harapan kedua pihak tidak memengaruhi hasil.';
+const PASS2 = 'Sebuah kota pesisir memutuskan membangun tanggul beton sepanjang pantainya untuk menahan abrasi. Dalam lima tahun pertama, garis pantai di belakang tanggul memang stabil. Namun, nelayan mulai melaporkan bahwa ombak yang memantul dari dinding tanggul menggerus pasir di depannya, sehingga perahu kecil tidak lagi dapat mendarat di tempat biasa. Sebuah tim peneliti menyarankan pendekatan lain: menanam mangrove di sepanjang tepi air dan memasang pemecah ombak berpori. Pendekatan ini lebih lambat memberi hasil dan awalnya tampak kurang meyakinkan, tetapi biayanya lebih rendah dan ekosistemnya ikut pulih. Wali kota menegaskan bahwa keputusan akhir akan menunggu data dua musim hujan lagi.';
+const GRW_RC = [
+  mc('<div class="notice" style="margin-bottom:12px;font-size:15px;line-height:1.55">' + PASS1 + '</div>Mengapa uji klinis memakai rancangan buta ganda?', ['Agar biaya penelitian lebih murah', 'Agar harapan pasien maupun penilai tidak memengaruhi hasil', 'Agar efek plasebo hilang sepenuhnya', 'Agar pasien tidak mengetahui penyakitnya'], 1),
+  mc('<div class="notice" style="margin-bottom:12px;font-size:15px;line-height:1.55">' + PASS1 + '</div>Berdasarkan bacaan, efek plasebo paling mungkin terlihat pada ...', ['Kadar gula darah', 'Keluhan nyeri', 'Hasil rontgen', 'Tekanan darah yang diukur alat'], 1),
+  mc('<div class="notice" style="margin-bottom:12px;font-size:15px;line-height:1.55">' + PASS2 + '</div>Masalah yang muncul setelah tanggul beton dibangun adalah ...', ['Garis pantai makin mundur di belakang tanggul', 'Pasir di depan tanggul tergerus sehingga perahu sulit mendarat', 'Mangrove mati karena beton', 'Biaya tanggul membengkak'], 1),
+  mc('<div class="notice" style="margin-bottom:12px;font-size:15px;line-height:1.55">' + PASS2 + '</div>Sikap wali kota terhadap dua pendekatan itu paling tepat digambarkan sebagai ...', ['Langsung memilih mangrove', 'Tetap memilih tanggul', 'Menunda keputusan sampai ada data tambahan', 'Menolak keduanya'], 2),
+];
+const PASS3 = 'Tidur bukan sekadar waktu istirahat bagi otak. Selama tidur gelombang lambat, otak memutar ulang pola aktivitas yang terbentuk saat belajar di siang hari, dan pengalaman baru perlahan dipindahkan dari hipokampus ke korteks untuk disimpan jangka panjang. Tidur REM, yang ditandai mimpi yang hidup, diduga membantu mengintegrasikan ingatan itu dengan pengetahuan lama. Penelitian pada pelajar menunjukkan bahwa mereka yang tidur setelah mempelajari daftar kata mengingat lebih banyak keesokan harinya dibandingkan mereka yang tetap terjaga dalam rentang waktu yang sama. Sebaliknya, kurang tidur menurunkan kemampuan memusatkan perhatian, sehingga informasi bahkan tidak sempat tersimpan dengan baik sejak awal. Karena itu, begadang semalam suntuk sebelum ujian umumnya merugikan, bukan membantu. Para ahli menyarankan mencicil belajar dalam beberapa hari dan menjaga tidur yang cukup, terutama pada malam setelah materi baru dipelajari.';
+const PASS3_WORDS = PASS3.split(/\s+/).length;
+const GRW_RS = [
+  mc('Bagian otak tempat pengalaman baru semula disimpan sebelum dipindahkan adalah ...', ['Korteks', 'Hipokampus', 'Serebelum', 'Batang otak'], 1),
+  mc('Tidur yang ditandai mimpi hidup disebut tidur ...', ['Gelombang lambat', 'REM', 'Ringan', 'Dalam'], 1),
+  mc('Menurut bacaan, saran para ahli sebelum ujian adalah ...', ['Begadang semalam suntuk', 'Mencicil belajar dan menjaga tidur cukup', 'Menghindari tidur siang', 'Belajar hanya pada malam hari'], 1),
+];
+
+/* ---- Ga: fonologi tertulis ---- */
+const GA_PC = [
+  mc('Hilangkan bunyi pertama dari kata <b>sapi</b>. Hasilnya?', ['api', 'sap', 'pi', 'spi'], 0),
+  mc('Gabungkan bunyi /b/ + /a/ + /t/ + /u/. Hasilnya kata ...', ['tabu', 'batu', 'buta', 'tuba'], 1),
+  mc('Balik urutan bunyi pada kata <b>ibu</b>. Hasilnya?', ['ubi', 'bui', 'iub', 'bu'], 0),
+  mc('Hilangkan bunyi /r/ dari <b>rata</b>, lalu tambahkan bunyi /m/ di depannya. Hasilnya?', ['mata', 'mara', 'tama', 'amat'], 0),
+  mc('Berapa bunyi (fonem) pada kata <b>sekolah</b>? (huruf <i>h</i> dihitung satu bunyi)', ['5', '6', '7', '8'], 2),
+  mc('Berapa bunyi (fonem) pada kata <b>bunga</b>? (huruf <i>ng</i> dihitung satu bunyi)', ['3', '4', '5', '6'], 1),
+];
+
+/* ---- Glr ---- */
+const PAIRS = [['belanu', 'payung'], ['tigat', 'jembatan'], ['morfi', 'kunci'], ['sulpe', 'perahu'], ['kavro', 'lampu'], ['dentu', 'buku'], ['naxil', 'jam'], ['pirok', 'tangga']];
+const STORY = 'Pada Selasa pagi, Dr. Salma Rahayu tiba di Stasiun Riset Danau Toba pukul 07.40. Ia membawa empat tabung sampel air bertutup hijau dan sebuah termometer yang pecah di perjalanan. Asistennya, Bonar, sudah menunggu di dermaga bersama seorang nelayan bernama Pak Torus yang menawarkan perahu motor berkekuatan dua puluh PK. Mereka sepakat berlayar ke sisi barat danau karena kadar oksigen di sana dilaporkan menurun. Di tengah perjalanan hujan turun, sehingga Salma memindahkan semua tabung ke kotak pendingin oranye. Mereka kembali ke stasiun pukul 11.15 tanpa kehilangan satu pun sampel.';
+const STORY_Q = [
+  mc('Pukul berapa Dr. Salma tiba di stasiun?', ['07.14', '07.40', '08.40', '07.04'], 1),
+  mc('Berapa tabung sampel yang ia bawa?', ['Tiga', 'Empat', 'Lima', 'Enam'], 1),
+  mc('Apa warna tutup tabung sampel?', ['Biru', 'Merah', 'Hijau', 'Kuning'], 2),
+  mc('Siapa yang menawarkan perahu motor?', ['Bonar', 'Pak Torus', 'Pak Rahayu', 'Salma'], 1),
+  mc('Mengapa mereka berlayar ke sisi barat danau?', ['Cuaca di sana cerah', 'Kadar oksigen dilaporkan menurun', 'Nelayan menyarankannya', 'Stasiun kedua ada di sana'], 1),
+  mc('Ke mana tabung dipindahkan saat hujan turun?', ['Tas ransel hitam', 'Kotak pendingin oranye', 'Kotak pendingin biru', 'Kabin perahu'], 1),
+];
+/* ========== tugas kustom ========== */
+const R0 = mulberry(20261111);
+
+function textInput(body, { label, mode = 'text', ph = '', cls = 'field' }) {
+  return new Promise(res => {
+    const inp = h('input', { class: cls, type: 'text', inputmode: mode, autocomplete: 'off', autocapitalize: 'characters', spellcheck: 'false', placeholder: ph, 'aria-label': label });
+    const go = () => { if (inp.value.trim()) res(inp.value); };
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
+    body.replaceChildren(h('p', { class: 'q' }, label), inp, h('div', { class: 'row' }, h('button', { class: 'btn', onclick: go }, 'Kirim jawaban')));
+    inp.focus();
+  });
+}
+function bigScreen(body, text) {
+  body.replaceChildren(h('div', { class: 'bigbox' }, h('div', { class: 'big' }, text)));
+}
+
+/* ---- rentang memori ---- */
+async function runSpan({ tag, title, lens, gen, ask, expect, intro }) {
+  const body = stageShell(tag, title);
+  await ready(body, intro, 'Mulai');
+  let c = 0, total = lens.length * 2;
+  outer:
+  for (const L of lens) {
+    let fails = 0;
+    for (let t = 0; t < 2; t++) {
+      const seq = gen(L);
+      bigScreen(body, '·'); await sleep(900);
+      for (const s of seq) { bigScreen(body, s); await sleep(850); bigScreen(body, ''); await sleep(250); }
+      const ans = await textInput(body, { ...ask(L) });
+      const norm = v => v.replace(/[^0-9A-Za-z]/g, '').toUpperCase();
+      if (norm(ans) === norm(expect(seq))) c++; else fails++;
+    }
+    if (fails === 2) break outer;
+  }
+  return { c, n: total, g: 0 };
+}
+const digitsGen = L => { const a = []; while (a.length < L) { const d = Math.floor(Math.random() * 10); if (a[a.length - 1] !== d) a.push(d); } return a; };
+
+async function runLNS() {
+  const gen = L => {
+    const nl = Math.max(1, Math.floor(L / 2)), nd = L - nl;
+    const ls = shuffle('BKMRTS'.split('')).slice(0, nl), ds = shuffle('123456789'.split('')).slice(0, nd);
+    return shuffle(ls.concat(ds));
+  };
+  const expect = seq => seq.filter(x => /\d/.test(x)).sort().join('') + seq.filter(x => /[A-Z]/.test(x)).sort().join('');
+  return runSpan({ tag: 'Gwm · WM', title: 'Huruf dan angka', lens: [2, 3, 4, 5, 6, 7], gen, expect,
+    ask: () => ({ label: 'Ketik angkanya dari yang terkecil, lalu hurufnya sesuai urutan abjad. Contoh: 7 K 3 B  →  37BK', ph: 'mis. 37BK' }),
+    intro: 'Kamu akan melihat campuran huruf dan angka, satu per satu. Setelah selesai, ketik angka-angkanya dari kecil ke besar, lalu huruf-hurufnya sesuai abjad, tanpa spasi. Contoh: 7, K, 3, B → 37BK.' });
+}
+
+async function runCorsi() {
+  const POS = [[18, 22], [50, 14], [82, 24], [28, 48], [62, 50], [88, 58], [16, 78], [48, 84], [80, 82]];
+  const lens = [2, 3, 4, 5, 6, 7, 8];
+  const body = stageShell('Gwm · Wv', 'Blok berurutan');
+  await ready(body, 'Beberapa blok akan menyala bergantian. Setelah selesai, ketuk blok yang sama dengan urutan yang sama.', 'Mulai');
+  let c = 0;
+  for (const L of lens) {
+    let fails = 0;
+    for (let t = 0; t < 2; t++) {
+      const seq = shuffle([...Array(9).keys()]).slice(0, L);
+      const btns = POS.map((p, i) => h('button', { type: 'button', 'aria-label': 'blok ' + (i + 1), style: `left:${p[0]}%;top:${p[1]}%` }));
+      const status = h('p', { class: 'muted', style: 'text-align:center' }, 'Perhatikan urutan nyala…');
+      body.replaceChildren(h('div', { class: 'corsi' }, btns), status);
+      await sleep(900);
+      for (const s of seq) { btns[s].classList.add('on'); await sleep(650); btns[s].classList.remove('on'); await sleep(320); }
+      status.textContent = 'Sekarang ketuk urutannya (' + L + ' blok).';
+      const got = [];
+      await new Promise(res => btns.forEach((b, i) => b.onclick = () => { got.push(i); b.classList.add('hit'); setTimeout(() => b.classList.remove('hit'), 180); if (got.length === L) res(); }));
+      if (got.join() === seq.join()) c++; else fails++;
+    }
+    if (fails === 2) break;
+  }
+  return { c, n: lens.length * 2, g: 0 };
+}
+
+async function runNBack() {
+  const L = 'BFKMRTXZ'.split(''), N = 24, targets = new Set(shuffle([...Array(N - 2).keys()].map(i => i + 2)).slice(0, 8));
+  const seq = [];
+  for (let i = 0; i < N; i++) {
+    if (i >= 2 && targets.has(i)) seq.push(seq[i - 2]);
+    else { let x; do { x = pick(L); } while (i >= 2 && x === seq[i - 2]); seq.push(x); }
+  }
+  const body = stageShell('Gwm · AC', '2-back');
+  await ready(body, 'Huruf akan muncul satu per satu. Untuk setiap huruf, putuskan: apakah SAMA dengan huruf dua langkah sebelumnya? (Dua huruf pertama tidak perlu dijawab.) Tidak ada batas waktu per huruf, tapi jangan dicatat.', 'Mulai');
+  let hit = 0, cr = 0, nt = 0, nn = 0;
+  for (let i = 0; i < N; i++) {
+    bigScreen(body, seq[i]);
+    if (i < 2) { body.append(h('p', { class: 'muted', style: 'text-align:center' }, 'Ingat huruf ini…')); await sleep(1600); continue; }
+    const isT = seq[i] === seq[i - 2];
+    const resp = await new Promise(res => body.append(h('div', { class: 'row', style: 'justify-content:center' },
+      h('button', { class: 'btn', onclick: () => res(true) }, 'Sama (2 langkah lalu)'), h('button', { class: 'btn ghost', onclick: () => res(false) }, 'Beda'))));
+    if (isT) { nt++; if (resp) hit++; } else { nn++; if (!resp) cr++; }
+    bigScreen(body, ''); await sleep(250);
+  }
+  const bal = (hit / nt + cr / nn) / 2;
+  return { c: bal * 22, n: 22, g: .5 * 22 / 22, ne: 22 };
+}
+
+/* ---- kecepatan (Gs) ---- */
+function glyph(i, s = 34) {
+  const st = 'fill:none;stroke:var(--ink);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round';
+  const p = [
+    '<circle cx="12" cy="12" r="7"/>', '<polygon points="12,4 20,19 4,19"/>', '<path d="M12 4v16M4 12h16"/>',
+    '<polygon points="12,3 21,12 12,21 3,12"/>', '<path d="M6 4v16h12"/>', '<path d="M8 4v16M16 4v16"/>',
+  ][i];
+  return `<svg viewBox="0 0 24 24" width="${s}" height="${s}" style="${st}" aria-hidden="true">${p}</svg>`;
+}
+async function countdown(body) {
+  for (const n of ['3', '2', '1']) { bigScreen(body, n); await sleep(800); }
+}
+async function runSprint({ tag, title, intro, ms, ref, build }) {
+  const body = stageShell(tag, title);
+  await ready(body, intro, 'Mulai (hitung mundur 3 detik)');
+  await countdown(body);
+  const st = { correct: 0, wrong: 0 }; let over = false;
+  const area = h('div', { class: 'stack' }); body.replaceChildren(timerBar(ms), area);
+  const ctl = build(area, st, () => over);
+  await sleep(ms); over = true; ctl.stop && ctl.stop();
+  const net = Math.max(0, st.correct - st.wrong);
+  await ready(body, 'Waktu habis. Respons tercatat.', 'Lanjut');
+  return { c: Math.min(net, ref), n: ref, g: 0, ne: 12 };
+}
+function runCompare() {
+  const CH = 'ABDEFGHKLMNPRSTUWXYZ23456789'.split('');
+  return runSprint({ tag: 'Gs · P', title: 'Bandingkan pasangan', ms: 40000, ref: 48,
+    intro: 'Dua deret huruf/angka akan muncul. Tekan SAMA jika identik, BEDA jika ada satu karakter yang berbeda. Kerjakan secepat dan seakurat mungkin selama 40 detik. Pintasan keyboard: F = Sama, J = Beda.',
+    build(area, st, isOver) {
+      let cur;
+      const a = h('div'), b = h('div'), cmp = h('div', { class: 'cmp' }, a, b);
+      const ans = v => { if (isOver()) return; if ((v === cur.same)) st.correct++; else st.wrong++; nxt(); };
+      const nxt = () => {
+        const s = shuffle(CH).slice(0, 6), same = Math.random() < .5, t = s.slice();
+        if (!same) { const i = Math.floor(Math.random() * 6); t[i] = pick(CH.filter(c => c !== s[i])); }
+        cur = { same }; a.textContent = s.join(''); b.textContent = t.join('');
+      };
+      nxt();
+      const onk = e => { const k = e.key.toLowerCase(); if (k === 'f') ans(true); else if (k === 'j') ans(false); };
+      document.addEventListener('keydown', onk);
+      area.append(cmp, h('div', { class: 'row', style: 'justify-content:center' }, h('button', { class: 'btn', onclick: () => ans(true) }, 'SAMA (F)'), h('button', { class: 'btn ghost', onclick: () => ans(false) }, 'BEDA (J)')));
+      return { stop: () => document.removeEventListener('keydown', onk) };
+    } });
+}
+function runCoding() {
+  return runSprint({ tag: 'Gs · R9', title: 'Sandi simbol', ms: 40000, ref: 45,
+    intro: 'Setiap simbol punya nomor (lihat kunci di atas). Tekan nomor yang cocok dengan simbol yang tampil, secepat mungkin selama 40 detik. Bisa dengan keyboard 1–6 atau tombol layar.',
+    build(area, st, isOver) {
+      const map = shuffle([0, 1, 2, 3, 4, 5]); // nomor d (1..6) -> glyph map[d-1]
+      const legend = h('div', { class: 'legend' }, map.map((g, i) => h('div', { html: glyph(g, 26) + '<span>' + (i + 1) + '</span>' })));
+      const box = h('div', { class: 'bigbox', style: 'min-height:120px' });
+      let cur;
+      const nxt = () => { let g; do { g = Math.floor(Math.random() * 6); } while (g === cur); cur = g; box.innerHTML = glyph(g, 64); };
+      nxt();
+      const ans = d => { if (isOver()) return; if (map[d - 1] === cur) st.correct++; else st.wrong++; nxt(); };
+      const pad = h('div', { class: 'pad' }, [1, 2, 3, 4, 5, 6].map(d => h('button', { type: 'button', onclick: () => ans(d) }, String(d))));
+      const onk = e => { if (/^[1-6]$/.test(e.key)) ans(+e.key); };
+      document.addEventListener('keydown', onk);
+      area.append(legend, box, pad);
+      return { stop: () => document.removeEventListener('keydown', onk) };
+    } });
+}
+
+/* ---- kelancaran (Gr) ---- */
+async function runFluency({ tag, title, intro, prompt, ms, ref, valid }) {
+  const body = stageShell(tag, title);
+  await ready(body, intro, 'Mulai (' + ms / 1000 + ' detik)');
+  const ta = h('textarea', { class: 'field', 'aria-label': 'jawaban', placeholder: 'Pisahkan dengan Enter atau koma…' });
+  const info = h('span', { class: 'muted mono' }, '0 jawaban');
+  body.replaceChildren(h('p', { class: 'q', html: prompt }), timerBar(ms), ta, info);
+  ta.focus();
+  const upd = () => { info.textContent = parseEntries(ta.value, valid).length + ' jawaban valid'; };
+  ta.addEventListener('input', upd);
+  await sleep(ms); ta.disabled = true;
+  const n = parseEntries(ta.value, valid).length;
+  await ready(body, 'Waktu habis. ' + n + ' jawaban valid tercatat.', 'Lanjut');
+  return { c: Math.min(n, ref), n: ref, g: 0, ne: 10 };
+}
+function parseEntries(txt, valid) {
+  const seen = new Set();
+  txt.split(/[\n,;]+/).map(s => s.trim().toLowerCase().replace(/\s+/g, ' ')).forEach(s => { if (s.length >= 3 && (!valid || valid(s))) seen.add(s); });
+  return [...seen];
+}
+
+/* ---- Glr: pasangan dan cerita ---- */
+async function studyScreen(tag, title, promptText, html, ms, early) {
+  const body = stageShell(tag, title);
+  body.replaceChildren(h('p', { class: 'q' }, promptText), h('div', { class: 'notice', style: 'font-size:17px;line-height:1.6', html }), timerBar(ms));
+  if (early) await new Promise(res => { const t = setTimeout(res, ms); body.append(h('div', { class: 'row' }, h('button', { class: 'btn', onclick: () => { clearTimeout(t); res(); } }, 'Sudah selesai membaca'))); });
+  else await sleep(ms);
+}
+async function learnPairs() {
+  const body = stageShell('Glr · MA', 'Kode dan benda');
+  await ready(body, 'Kamu akan melihat 8 pasangan "kode → benda". Hafalkan sebanyak mungkin. Setiap pasangan tampil 3 detik, dan seluruh daftar ditayangkan dua kali. Nanti kamu akan ditanya pasangannya, dan sekali lagi di akhir sesi.', 'Mulai menghafal');
+  for (let pass = 0; pass < 2; pass++) {
+    const ord = shuffle(PAIRS);
+    for (let i = 0; i < ord.length; i++) {
+      body.replaceChildren(h('p', { class: 'eyebrow' }, 'Tayangan ' + (pass + 1) + ' dari 2 · ' + (i + 1) + '/8'), h('div', { class: 'bigbox' }, h('div', { class: 'big', style: 'font-size:clamp(28px,8vw,52px)' }, ord[i][0] + '  →  ' + ord[i][1])));
+      await sleep(3000);
+    }
+  }
+  ST.learnedAt = Date.now(); save();
+  body.replaceChildren(h('p', { class: 'q' }, 'Selesai menayangkan. Sekarang uji ingatanmu.'), h('div', { class: 'row' }, h('button', { class: 'btn', onclick: () => body.dispatchEvent(new Event('go')) }, 'Lanjut')));
+  await new Promise(res => body.addEventListener('go', res, { once: true }));
+}
+function pairItems() {
+  return shuffle(PAIRS).map(([cue, ans]) => {
+    const others = shuffle(PAIRS.map(p => p[1]).filter(x => x !== ans)).slice(0, 3);
+    return { q: 'Kode <b>' + cue + '</b> berpasangan dengan ...', opts: [ans, ...others], a: 0 };
+  });
+}
+
+/* ---- Ga ---- */
+const SCALE = [261.63, 293.66, 329.63, 349.23, 392, 440, 493.88, 523.25];
+function pitchItems() {
+  return [200, 100, 50, 28, 16].map(cents => {
+    const base = pick([330, 370, 440, 494, 523]), hi = base * Math.pow(2, cents / 1200), firstHigher = Math.random() < .5;
+    const [f1, f2] = firstHigher ? [hi, base] : [base, hi];
+    return { q: 'Dengarkan dua nada berurutan. Nada mana yang <b>lebih tinggi</b>?', opts: ['Nada pertama', 'Nada kedua'], a: firstHigher ? 0 : 1, fixed: true, cols: 2,
+      play: () => AU.playTones([{ f: f1, at: 0, dur: 650 }, { f: f2, at: 1050, dur: 650 }]) };
+  });
+}
+function rhythmItems() {
+  const R = mulberry(777), spec = [[4, 0, [250, 500]], [5, 1, [250, 500]], [5, 1, [250, 500]], [6, 0, [250, 500]], [7, 0, [200, 300, 450]], [7, 1, [200, 300, 450]]];
+  return spec.map(([k, same, vals]) => {
+    let base; do { base = [...Array(k - 1)].map(() => pick(vals, R)); } while (new Set(base).size < 2);
+    const other = base.slice();
+    if (!same) { const i = base.findIndex((v, j) => j < base.length - 1 && v !== base[j + 1]); [other[i], other[i + 1]] = [other[i + 1], other[i]]; }
+    const play = () => {
+      const list = []; let t = 0;
+      const add = iv => { list.push({ f: 880, at: t, dur: 70 }); iv.forEach(d => { t += d; list.push({ f: 880, at: t, dur: 70 }); }); };
+      add(base); t += 1500; add(other); return AU.playTones(list);
+    };
+    return { q: 'Dengarkan dua pola ketukan. Apakah keduanya <b>sama persis</b> (ritme dan jeda)?', opts: ['Sama', 'Berbeda'], a: same ? 0 : 1, fixed: true, cols: 2, play };
+  });
+}
+function melodyItems() {
+  const R = mulberry(4242), spec = [[3, 0, 3], [4, 1, 0], [5, 0, 2], [5, 1, 0], [6, 1, 0], [7, 0, 1]];
+  return spec.map(([k, same, shift]) => {
+    const m = [2 + Math.floor(R() * 4)];
+    while (m.length < k) { const d = pick([-2, -1, 1, 2], R), v = clamp(m[m.length - 1] + d, 0, 7, 0); m.push(v); }
+    const o = m.slice();
+    if (!same) { const i = 1 + Math.floor(R() * (k - 1)), d = shift === 3 ? 3 : shift === 2 ? 2 : 1; const up = o[i] + d <= 7; o[i] = up ? o[i] + d : o[i] - d; }
+    const play = () => {
+      const list = []; m.forEach((v, i) => list.push({ f: SCALE[v], at: i * 520, dur: 440 }));
+      const off = k * 520 + 1500; o.forEach((v, i) => list.push({ f: SCALE[v], at: off + i * 520, dur: 440 }));
+      return AU.playTones(list);
+    };
+    return { q: 'Dengarkan dua melodi pendek. Apakah keduanya <b>sama persis</b>?', opts: ['Sama', 'Berbeda'], a: same ? 0 : 1, fixed: true, cols: 2, play };
+  });
+}
+async function audioCheck() {
+  const body = stageShell('Ga', 'Cek suara');
+  return new Promise(res => {
+    const status = h('p', { class: 'muted' }, '');
+    body.replaceChildren(
+      h('p', { class: 'q' }, 'Ruang ini memakai suara. Pakai headphone atau earphone di tempat tenang, atur volume nyaman, lalu putar nada tes.'),
+      h('div', { class: 'row' }, h('button', { class: 'btn ghost', onclick: () => { const d = AU.playTones([{ f: 440, at: 0, dur: 700 }]); status.textContent = d ? 'Nada diputar (440 Hz).' : 'Browser ini tidak mendukung audio.'; } }, 'Putar nada tes')),
+      status,
+      h('div', { class: 'row' },
+        h('button', { class: 'btn', onclick: () => { ST.audio = true; save(); res([]); } }, 'Nadanya terdengar jelas'),
+        h('button', { class: 'btn ghost', onclick: () => { ST.audio = false; save(); res([]); } }, 'Tidak terdengar / lewati ruang ini')),
+      h('p', { class: 'muted', style: 'font-size:14px' }, 'Kalau dilewati, kemampuan Ga tidak dihitung di profil (supaya tidak menyesatkan).'));
+  });
+}
+
+/* ---- Gs/Grw: kecepatan membaca ---- */
+async function runReadSpeed() {
+  const body = stageShell('Grw · RS', 'Membaca santai');
+  await ready(body, 'Baca teks berikut dengan kecepatan wajar, seperti kamu membaca artikel biasa untuk dipahami. Tekan "Selesai" saat sudah selesai. Setelah itu ada 3 pertanyaan. Waktu baca dicatat tanpa terlihat.', 'Tampilkan teks');
+  const t0 = performance.now();
+  await new Promise(res => body.replaceChildren(h('div', { class: 'notice', style: 'font-size:17px;line-height:1.65' }, PASS3), h('div', { class: 'row' }, h('button', { class: 'btn', onclick: res }, 'Selesai membaca'))));
+  const t1 = performance.now();
+  const r = await runMCQ(GRW_RS.map(x => Object.assign({}, x)), 'Grw · RS');
+  const wpm = PASS3_WORDS / ((t1 - t0) / 60000), acc = r.c / r.n, eff = wpm * acc, p = clamp((eff - 50) / 300);
+  ST.rs = { wpm: Math.round(wpm), acc: r.c + '/' + r.n }; save();
+  return { c: p * 8, n: 8, g: 0, ne: 8 };
+}
+/* ========== definisi tugas dan ruang ========== */
+const wrapParts = (nar, r) => Array.isArray(r) ? r : [Object.assign({ nar }, r)];
+function T(id, ab, title, instr, run, nar, extra) { return Object.assign({ id, ab, title, instr, nar, run: async () => wrapParts(nar, await run()) }, extra || {}); }
+const STD = 'Pilih satu jawaban terbaik. Tidak ada batas waktu per butir dan tidak ada umpan balik benar/salah. Jangan memakai kalkulator atau mesin pencari.';
+const digitAsk = L => ({ label: 'Ketik angka-angkanya persis seperti urutan tadi.', mode: 'numeric', ph: 'mis. 4827' });
+const digitAskB = L => ({ label: 'Ketik angka-angkanya dalam urutan TERBALIK (dari yang terakhir muncul).', mode: 'numeric', ph: 'mis. 7284' });
+
+const STATIONS = [
+  { key: 'Glr1', ab: 'Glr', room: 'Ruang Arsip, bagian 1', brief: 'Menghafal pasangan kode-benda dan membaca laporan singkat. Ingatanmu diuji langsung, lalu sekali lagi di ruang terakhir.', tasks: [
+    T('glr-ma', 'Glr', 'Kode dan benda', 'Hafalkan pasangan kode dan benda, lalu jawab pertanyaan pasangannya.', async () => { await learnPairs(); return runMCQ(pairItems(), 'Glr · Memori asosiatif'); }, 'MA'),
+    T('glr-mm', 'Glr', 'Laporan lapangan', 'Baca laporan singkat. Teks akan hilang setelah selesai atau setelah 60 detik, lalu kamu ditanya detailnya.', async () => { await studyScreen('Glr · MM', 'Laporan lapangan', 'Baca laporan ini dengan saksama. Nanti kamu ditanya detailnya.', STORY, 60000, true); return runMCQ(STORY_Q, 'Glr · Memori bermakna'); }, 'MM'),
+  ] },
+  { key: 'Gf', ab: 'Gf', room: 'Ruang Logika', brief: 'Pola, deret, dan teka-teki penalaran. Semua masalahnya baru, tidak bisa dihafal.', tasks: [
+    T('gf-i', 'Gf', 'Matriks pola', STD, () => runMCQ(MATRIX_SPECS.map((s, i) => makeMatrix(s, 100 + i * 7)), 'Gf · Induksi'), 'I'),
+    T('gf-rq', 'Gf', 'Deret dan persamaan', STD, () => runMCQ(GF_RQ, 'Gf · Penalaran kuantitatif'), 'RQ'),
+    T('gf-rg', 'Gf', 'Teka-teki logika', STD, () => runMCQ(GF_RG, 'Gf · Deduksi'), 'RG'),
+  ] },
+  { key: 'Gc', ab: 'Gc', room: 'Perpustakaan', brief: 'Kosakata, pengetahuan umum, dan analogi. Di ruang ini yang diuji adalah apa yang sudah kamu pelajari.', tasks: [
+    T('gc-vl', 'Gc', 'Makna kata', STD, () => runMCQ(GC_VL, 'Gc · Pengetahuan leksikal'), 'VL'),
+    T('gc-k0', 'Gc', 'Pengetahuan umum', STD, () => runMCQ(GC_K0, 'Gc · Informasi umum'), 'K0'),
+    T('gc-ld', 'Gc', 'Analogi kata', STD, () => runMCQ(GC_LD, 'Gc · Perkembangan bahasa'), 'LD'),
+  ] },
+  { key: 'Gv', ab: 'Gv', room: 'Ruang Spasial', brief: 'Membayangkan kertas yang dilipat, kubus yang diputar, dan mengingat pola.', tasks: [
+    T('gv-vz', 'Gv', 'Lipat dan lubangi', STD, () => runMCQ(FOLD_ITEMS.map((s, i) => makeFold(s, 300 + i * 11)), 'Gv · Visualisasi'), 'Vz'),
+    T('gv-sr', 'Gv', 'Rotasi kubus', STD + ' Bayangkan memutar susunan kubus; jangan memiringkan layar.', () => runMCQ([5, 5, 6, 6, 7].map((n, i) => makeRotation(n, 500 + i * 13)), 'Gv · Hubungan spasial'), 'SR'),
+    T('gv-mv', 'Gv', 'Ingat pola', 'Sebuah pola kotak tampil 5 detik, lalu hilang. Pilih pola yang sama.', () => runMCQ([4, 5, 7].map((k, i) => makeGrid(k, 900 + i * 17)), 'Gv · Memori visual'), 'MV'),
+  ] },
+  { key: 'Gwm', ab: 'Gwm', room: 'Ruang Kendali', brief: 'Menahan dan mengolah informasi sebentar. Jangan mencatat; ini tentang kapasitas ingatan sesaat.', tasks: [
+    T('gwm-f', 'Gwm', 'Angka maju', '', () => runSpan({ tag: 'Gwm · MS', title: 'Angka maju', lens: [3, 4, 5, 6, 7, 8, 9], gen: digitsGen, expect: s => s.join(''), ask: digitAsk, intro: 'Angka akan muncul satu per satu. Setelah selesai, ketik angka yang sama dengan urutan yang sama. Panjang deret bertambah; berhenti otomatis saat dua percobaan sepanjang yang sama gagal. Jangan mencatat.' }), 'MS'),
+    T('gwm-b', 'Gwm', 'Angka mundur', '', () => runSpan({ tag: 'Gwm · WM', title: 'Angka mundur', lens: [2, 3, 4, 5, 6, 7, 8], gen: digitsGen, expect: s => s.slice().reverse().join(''), ask: digitAskB, intro: 'Sama seperti sebelumnya, tetapi ketik dalam urutan TERBALIK. Contoh: 3, 8, 1 → 183. Jangan mencatat.' }), 'WM'),
+    T('gwm-l', 'Gwm', 'Huruf dan angka', '', runLNS, 'WM'),
+    T('gwm-c', 'Gwm', 'Blok berurutan', '', runCorsi, 'Wv'),
+    T('gwm-n', 'Gwm', '2-back', '', runNBack, 'AC'),
+  ] },
+  { key: 'Gs', ab: 'Gs', room: 'Ruang Reaksi', brief: 'Dua sprint pendek. Ini satu-satunya ruang yang berbatas waktu ketat: kecepatan memang bagian dari definisinya.', tasks: [
+    T('gs-p', 'Gs', 'Bandingkan pasangan', '', runCompare, 'P'),
+    T('gs-r', 'Gs', 'Sandi simbol', '', runCoding, 'R9'),
+  ] },
+  { key: 'Ga', ab: 'Ga', room: 'Ruang Akustik', brief: 'Nada, ritme, melodi, dan bunyi bahasa. Pakai headphone di tempat tenang.', tasks: [
+    T('ga-chk', 'Ga', 'Cek suara', '', audioCheck, 'chk'),
+    T('ga-u5', 'Ga', 'Nada tinggi atau rendah', 'Dua nada berurutan akan diputar. Tiap butir boleh diputar maksimal 2 kali.', () => runMCQ(pitchItems(), 'Ga · Diskriminasi nada'), 'U5', { needs: 'audio' }),
+    T('ga-u8', 'Ga', 'Pola ketukan', 'Dua pola ketukan diputar. Tiap butir boleh diputar maksimal 2 kali.', () => runMCQ(rhythmItems(), 'Ga · Penilaian ritme'), 'U8', { needs: 'audio' }),
+    T('ga-um', 'Ga', 'Melodi pendek', 'Dua melodi diputar. Tiap butir boleh diputar maksimal 2 kali.', () => runMCQ(melodyItems(), 'Ga · Memori pola bunyi'), 'UM', { needs: 'audio' }),
+    T('ga-pc', 'Ga', 'Bunyi dalam kata', 'Bayangkan bunyi katanya (bukan ejaannya) di kepalamu, lalu jawab. Tidak ada batas waktu.', () => runMCQ(GA_PC, 'Ga · Pengodean fonetik'), 'PC', { needs: 'audio' }),
+  ] },
+  { key: 'Gq', ab: 'Gq', room: 'Ruang Hitung', brief: 'Pengetahuan dan penerapan matematika. Kertas coret-coret boleh, kalkulator tidak.', tasks: [
+    T('gq-km', 'Gq', 'Konsep dan prosedur', STD.replace('Jangan memakai kalkulator', 'Kertas coret boleh, jangan memakai kalkulator'), () => runMCQ(GQ_KM, 'Gq · Pengetahuan matematika'), 'KM'),
+    T('gq-a3', 'Gq', 'Soal cerita', STD.replace('Jangan memakai kalkulator', 'Kertas coret boleh, jangan memakai kalkulator'), () => runMCQ(GQ_A3, 'Gq · Pemecahan masalah'), 'A3'),
+  ] },
+  { key: 'Grw', ab: 'Grw', room: 'Ruang Naskah', brief: 'Ejaan, tata bahasa, membaca paham, dan kecepatan membaca (bahasa Indonesia).', tasks: [
+    T('grw-sg', 'Grw', 'Ejaan baku', STD, () => runMCQ(GRW_SG, 'Grw · Ejaan'), 'SG'),
+    T('grw-eu', 'Grw', 'Penggunaan bahasa', STD, () => runMCQ(GRW_EU, 'Grw · Penggunaan bahasa'), 'EU'),
+    T('grw-rc', 'Grw', 'Pemahaman bacaan', STD, () => runMCQ(GRW_RC, 'Grw · Pemahaman bacaan'), 'RC'),
+    T('grw-rs', 'Grw', 'Membaca santai', '', runReadSpeed, 'RS'),
+  ] },
+  { key: 'Glr2', ab: 'Glr', room: 'Ruang Arsip, bagian 2', brief: 'Ingatan tertunda untuk pasangan tadi, lalu dua tugas mengeluarkan ide dan kata dengan cepat.', tasks: [
+    T('glr-md', 'Glr', 'Ingat kode lagi', 'Ingat pasangan kode dan benda dari awal sesi tadi. Kalau lupa, tebak yang paling mungkin.', () => runMCQ(pairItems(), 'Glr · Memori asosiatif (tertunda)'), 'MAd'),
+    T('glr-fi', 'Glr', 'Kegunaan benda', '', () => runFluency({ tag: 'Glr · FI', title: 'Kelancaran gagasan', ms: 60000, ref: 20, intro: 'Dalam 60 detik, tuliskan sebanyak mungkin gagasan. Pisahkan dengan Enter atau koma. Tidak ada kamus yang memeriksa; hitungannya jujur dari kamu.', prompt: 'Sebutkan sebanyak-banyaknya <b>kegunaan sebuah batu bata</b>.' }), 'FI'),
+    T('glr-fw', 'Glr', 'Kata berawalan S', '', () => runFluency({ tag: 'Glr · FW', title: 'Kelancaran kata', ms: 60000, ref: 25, valid: s => s.startsWith('s') && /^[a-z -]+$/.test(s), intro: 'Dalam 60 detik, tuliskan sebanyak mungkin kata bahasa Indonesia yang berawalan huruf S (bukan nama orang/tempat). Pisahkan dengan Enter atau koma.', prompt: 'Tulis sebanyak-banyaknya <b>kata berawalan huruf S</b>.' }), 'FW'),
+  ] },
+];
+const N_STATIONS = STATIONS.length;
+const ALL_TASKS = STATIONS.flatMap(s => s.tasks);
+
+/* ========== metadata kemampuan dan hasil ========== */
+const NARROW = {
+  'Gf.I': 'Induksi (I)', 'Gf.RG': 'Penalaran sekuensial umum (RG)', 'Gf.RQ': 'Penalaran kuantitatif (RQ)',
+  'Gc.VL': 'Pengetahuan leksikal (VL)', 'Gc.K0': 'Informasi verbal umum (K0)', 'Gc.LD': 'Perkembangan bahasa (LD)',
+  'Gv.Vz': 'Visualisasi (Vz)', 'Gv.SR': 'Hubungan spasial (SR)', 'Gv.MV': 'Memori visual (MV)',
+  'Gwm.MS': 'Rentang memori (MS)', 'Gwm.WM': 'Kapasitas memori kerja (WM)', 'Gwm.Wv': 'Rentang visuospasial (Wv)', 'Gwm.AC': 'Kendali atensi (AC)',
+  'Gs.P': 'Kecepatan perseptual (P)', 'Gs.R9': 'Kecepatan menyelesaikan tugas (R9)',
+  'Glr.MA': 'Memori asosiatif, langsung (MA)', 'Glr.MAd': 'Memori asosiatif, tertunda (MA)', 'Glr.MM': 'Memori bermakna (MM)', 'Glr.FI': 'Kelancaran gagasan (FI)', 'Glr.FW': 'Kelancaran kata (FW)',
+  'Ga.U5': 'Diskriminasi frekuensi nada (U5)', 'Ga.U8': 'Penilaian ritme (U8)', 'Ga.UM': 'Memori pola bunyi (UM)', 'Ga.PC': 'Pengodean fonetik (PC)',
+  'Gq.KM': 'Pengetahuan matematika (KM)', 'Gq.A3': 'Pemecahan masalah matematika (A3)',
+  'Grw.SG': 'Ejaan (SG)', 'Grw.EU': 'Penggunaan bahasa (EU)', 'Grw.RC': 'Pemahaman bacaan (RC)', 'Grw.RS': 'Kecepatan membaca (RS)',
+};
+const AB = {
+  Gf: { name: 'Penalaran Fluid', en: 'Fluid Reasoning', room: 'Ruang Logika',
+    def: 'Kemampuan memecahkan masalah baru yang tidak bisa diselesaikan hanya dengan pengetahuan atau kebiasaan yang sudah ada: menemukan pola (induksi), menarik kesimpulan dari aturan (deduksi), dan bernalar dengan kuantitas. Gf adalah salah satu kemampuan yang paling erat kaitannya dengan faktor umum (g).',
+    hi: 'Kamu relatif cepat menangkap aturan tersembunyi di balik situasi baru. Ini biasanya terasa saat menghadapi masalah tanpa buku petunjuk: kamu mencari polanya dulu.',
+    lo: 'Masalah yang benar-benar baru terasa lebih berat dibanding kemampuan lain di profilmu. Itu bukan vonis: banyak orang menutupinya dengan pengetahuan dan strategi yang baik.',
+    tips: ['Pecah masalah baru jadi bagian kecil dan tuliskan dugaan aturannya sebelum mencoba jawaban.', 'Pelajari kerangka penalaran formal (logika dasar, statistika, pemrograman) supaya ada alat berpikir, bukan hanya intuisi.', 'Tidur cukup dan jeda teratur: performa Gf sangat peka terhadap kelelahan.'],
+    note: 'Gf relatif sulit dinaikkan lewat latihan "otak" umum. Yang bisa ditingkatkan adalah strategi dan pengetahuan yang membuatnya terpakai lebih efisien.' },
+  Gc: { name: 'Pengetahuan Terkristalisasi', en: 'Comprehension-Knowledge', room: 'Perpustakaan',
+    def: 'Kedalaman dan keluasan pengetahuan dan keterampilan yang dihargai budaya: kosakata, pemahaman bahasa, dan informasi umum. Tumbuh sepanjang hidup lewat belajar dan pengalaman, dan sangat bergantung pada bahasa dan budaya.',
+    hi: 'Kamu punya "perpustakaan" pengetahuan dan bahasa yang kaya. Ini biasanya terasa saat membaca, berdiskusi, dan menulis akademik.',
+    lo: 'Kosakata dan pengetahuan umum di tes ini lebih rendah dibanding kemampuan lain. Kabar baiknya, ini yang paling mudah dibangun karena Gc tumbuh lewat paparan.',
+    tips: ['Baca lintas topik (esai, jurnal populer, sastra) dan catat kata baru bersama konteksnya.', 'Diskusikan ide dengan orang berbeda latar. Gc tumbuh lewat pemakaian aktif.', 'Biasakan membuka KBBI atau PUEBI, bukan hanya saat ragu.'],
+    note: 'Butir memakai bahasa Indonesia dan konteks Indonesia/umum, jadi skor ini tidak sebanding langsung dengan tes dalam bahasa atau budaya lain.' },
+  Gv: { name: 'Pemrosesan Visual', en: 'Visual Processing', room: 'Ruang Spasial',
+    def: 'Kemampuan membentuk, menyimpan, mengambil, dan mentransformasi citra visual: membayangkan benda diputar atau dilipat (visualisasi dan hubungan spasial) serta mengingat pola visual.',
+    hi: 'Kamu nyaman "melihat" dalam pikiran. Membaca peta, diagram, desain, dan data visual terasa alami.',
+    lo: 'Membayangkan rotasi dan lipatan terasa lebih berat. Biasanya bisa diimbangi dengan menggambar atau memakai model fisik.',
+    tips: ['Sketsa tangan dan model 3D (kertas, balok, perangkat lunak) melatih Gv; efeknya paling jelas pada tugas spasial.', 'Gunakan diagram untuk menjelaskan data atau alur penelitianmu.', 'Teka-teki spasial (origami, peta, puzzle) bisa jadi latihan ringan.'],
+    note: '' },
+  Gwm: { name: 'Memori Kerja Jangka Pendek', en: 'Working Memory Capacity', room: 'Ruang Kendali',
+    def: 'Kemampuan menahan dan mengolah informasi dalam kesadaran saat ini selama beberapa detik: rentang memori (MS), kapasitas memori kerja (WM), penyimpanan visuospasial (Wv), dan kendali atensi (AC). Erat kaitannya dengan belajar dan penalaran kompleks.',
+    hi: 'Kamu bisa menjaga banyak potongan informasi sambil mengolahnya. Berguna untuk hitung mental, mengikuti argumen panjang, atau menulis sambil merujuk banyak sumber.',
+    lo: 'Beban informasi banyak sekaligus lebih cepat melelahkan. Strategi mencatat dan menyederhanakan tugas sangat membantu.',
+    tips: ['Kurangi beban dengan eksternalisasi: catatan, checklist, diagram. Itu cara paling efektif dan nyata.', 'Kelompokkan informasi (chunking) dan beri struktur sebelum menghafal.', 'Hindari multitasking dan jaga tidur; memori kerja turun drastis saat atensi terbagi.'],
+    note: 'Pelatihan memori kerja (aplikasi "brain training") sejauh ini kurang terbukti menaikkan kemampuan umum di luar tugas latihannya.' },
+  Gs: { name: 'Kecepatan Pemrosesan', en: 'Processing Speed', room: 'Ruang Reaksi',
+    def: 'Kemampuan menyelesaikan tugas kognitif sederhana yang sudah terbiasa secara cepat dan lancar saat harus fokus: kecepatan perseptual (P) dan kecepatan menyelesaikan tugas (R9). Ini bukan kecepatan berpikir secara umum.',
+    hi: 'Kamu cepat dan lancar pada pekerjaan rutin yang menuntut ketelitian visual, seperti memeriksa data atau memindai dokumen.',
+    lo: 'Tugas rutin yang berbatas waktu terasa lebih lambat. Ini tidak otomatis mengurangi mutu penalaran; sering cukup diatasi dengan pengaturan alur kerja.',
+    tips: ['Otomatiskan tugas berulang (template, shortcut, skrip) supaya kecepatan tidak jadi penghalang.', 'Pasang tenggat realistis dan istirahat teratur: Gs sangat peka terhadap kelelahan dan motivasi.', 'Latihan khusus hanya sedikit mengubah kecepatan dasar; fokus pada efisiensi proses.'],
+    note: 'Perangkat (mouse, layar sentuh, keyboard) memengaruhi skor Gs di tes mandiri. Anggap skor ini perkiraan kasar.' },
+  Glr: { name: 'Penyimpanan dan Pengambilan Jangka Panjang', en: 'Long-Term Storage & Retrieval', room: 'Ruang Arsip',
+    def: 'Kemampuan menyimpan informasi di memori jangka panjang dan mengambilnya kembali. Dalam CHC terbaru dibagi menjadi efisiensi belajar (Gl: memori asosiatif dan bermakna) dan kelancaran pengambilan (Gr: kelancaran gagasan dan kata).',
+    hi: 'Kamu efisien menyimpan informasi baru dan lancar memanggilnya. Ini berguna saat mempelajari bahan baru, menyebut istilah, dan brainstorming.',
+    lo: 'Mengingat informasi baru atau memanggil kata dan ide dengan cepat terasa lebih berat. Teknik belajar yang tepat bisa membantu banyak.',
+    tips: ['Gunakan retrieval practice (menguji diri) dan jeda belajar (spaced repetition).', 'Kaitkan materi baru dengan cerita atau contoh (elaborasi) supaya ikatannya bermakna.', 'Tidur cukup setelah belajar: konsolidasi ingatan terjadi saat tidur.'],
+    note: 'Kelancaran gagasan dan kata dihitung dari yang kamu ketik tanpa pemeriksaan kamus, jadi bagian ini paling kasar.' },
+  Ga: { name: 'Pemrosesan Auditori', en: 'Auditory Processing', room: 'Ruang Akustik',
+    def: 'Kemampuan menganalisis, membedakan, dan mengolah pola bunyi: nada, ritme, melodi, dan bunyi bahasa (pengodean fonetik). Ini berbeda dari ketajaman pendengaran.',
+    hi: 'Telingamu peka terhadap pola bunyi. Ini terasa di musik, belajar bahasa, dan menangkap aksen.',
+    lo: 'Membedakan nada dan ritme, atau memanipulasi bunyi bahasa, terasa lebih sulit. Perangkat audio dan lingkungan juga sangat memengaruhi.',
+    tips: ['Latihan musik atau bernyanyi bersama melatih diskriminasi nada dan ritme.', 'Dalam belajar bahasa, dengarkan aktif dan tirukan (shadowing).', 'Untuk mengulang bagian ini, pakai headphone yang baik di ruang tenang.'],
+    note: 'Perangkat audio dan kebisingan sangat memengaruhi Ga di tes mandiri.' },
+  Gq: { name: 'Pengetahuan Kuantitatif', en: 'Quantitative Knowledge', room: 'Ruang Hitung',
+    def: 'Kedalaman dan keluasan pengetahuan matematika yang dipelajari (konsep, notasi, prosedur) dan kemampuan menerapkannya. Berbeda dari penalaran kuantitatif di Gf: Gq adalah pengetahuan terpelajar, sedangkan Gf-RQ adalah penalaran pada masalah baru.',
+    hi: 'Perangkat matematikamu terlatih baik: konsep dan prosedur tersedia saat dibutuhkan, berguna untuk statistika dan analisis data.',
+    lo: 'Konsep dan prosedur matematika terasa kurang tersedia. Ini pengetahuan terpelajar, jadi bisa dipulihkan lewat latihan terarah.',
+    tips: ['Ulang konsep dasar dengan contoh kasus nyata (statistik penelitian, keuangan).', 'Kerjakan soal cerita bertahap dan tuliskan model matematikanya dulu.', 'Gunakan perangkat lunak statistik sambil memahami logika di baliknya.'],
+    note: '' },
+  Grw: { name: 'Membaca dan Menulis', en: 'Reading & Writing', room: 'Ruang Naskah',
+    def: 'Keterampilan dasar membaca dan menulis: pemahaman bacaan, kecepatan membaca, ejaan, dan penggunaan bahasa. Di tes ini diukur dalam bahasa Indonesia.',
+    hi: 'Kamu membaca dan menulis dengan ketepatan yang kuat: paham teks cepat, ejaan dan tata bahasa terjaga. Sangat berguna untuk penulisan akademik.',
+    lo: 'Ejaan, tata bahasa, atau kecepatan membaca terasa lebih lemah. Ini sangat terlatih lewat kebiasaan membaca dan umpan balik tulisan.',
+    tips: ['Baca teks panjang dengan sengaja, lalu ringkas dengan kata-katamu sendiri.', 'Minta umpan balik pada tulisanmu dan simpan daftar kesalahan berulang.', 'Pakai KBBI daring dan PUEBI saat menulis naskah akademik.'],
+    note: 'Kecepatan membaca dihitung dari waktu baca dan ketepatan jawaban; hasilnya perkiraan kasar.' },
+};
+const ORDER = ['Gf', 'Gc', 'Gv', 'Gwm', 'Gs', 'Glr', 'Ga', 'Gq', 'Grw'];
+
+function band(p) { return p < .25 ? 'Perlu dikembangkan' : p < .45 ? 'Berkembang' : p < .65 ? 'Cukup kuat' : p < .8 ? 'Kuat' : 'Sangat kuat'; }
+const pct = p => Math.round(p * 100);
+
+function compute() {
+  const nar = {};
+  for (const id in ST.res) for (const p of ST.res[id]) {
+    if (p.nar === 'chk') continue;
+    const k = p.ab + '.' + p.nar, o = nar[k] || (nar[k] = { ab: p.ab, nar: p.nar, c: 0, n: 0, gn: 0, ne: 0 });
+    o.c += p.c; o.n += p.n; o.gn += p.g * p.n; o.ne += (p.ne || p.n);
+  }
+  const abs = {};
+  for (const k in nar) {
+    const o = nar[k], raw = o.c / o.n, g = o.gn / o.n;
+    o.raw = raw; o.g = g; o.p = clamp((raw - g) / (1 - g));
+    o.se = Math.sqrt(Math.max(raw * (1 - raw), .06) / o.ne) / (1 - g);
+    (abs[o.ab] || (abs[o.ab] = { ab: o.ab, nars: [] })).nars.push(o);
+  }
+  for (const a in abs) {
+    const A = abs[a], k = A.nars.length;
+    A.p = A.nars.reduce((s, x) => s + x.p, 0) / k;
+    A.se = Math.sqrt(A.nars.reduce((s, x) => s + x.se * x.se, 0)) / k;
+    A.lo = clamp(A.p - 1.645 * A.se); A.hi = clamp(A.p + 1.645 * A.se);
+    A.items = A.nars.reduce((s, x) => s + x.n, 0);
+  }
+  const list = ORDER.filter(a => abs[a]).map(a => abs[a]);
+  const m = list.length ? list.reduce((s, x) => s + x.p, 0) / list.length : 0;
+  list.forEach(A => { A.d = A.p - m; A.thr = Math.max(.07, 1.28 * A.se); A.rel = A.d > A.thr ? 'up' : A.d < -A.thr ? 'dn' : 'eq'; });
+  return { list, abs, mean: m };
+}
+
+/* ========== layar-layar ========== */
+function introScreen() {
+  const started = ST.started && ST.pos > 0 && ST.pos < N_STATIONS;
+  const done = ST.pos >= N_STATIONS;
+  const rooms = h('div', { class: 'rooms' }, ORDER.map(a => h('div', null, h('b', null, a + ' · ' + AB[a].name), h('span', null, AB[a].room + '. ' + ({
+    Gf: 'Pola, deret, logika', Gc: 'Kosakata, pengetahuan umum', Gv: 'Lipat kertas, rotasi kubus', Gwm: 'Rentang angka, blok, 2-back', Gs: 'Dua sprint 40 detik', Glr: 'Hafalan, cerita, kelancaran', Ga: 'Nada, ritme, melodi, bunyi', Gq: 'Konsep dan soal cerita', Grw: 'Ejaan, tata bahasa, membaca',
+  })[a]))));
+  setScreen(h('div', { class: 'stack-l' },
+    h('header', { class: 'top' }, h('div', { class: 'top-in' }, h('div', { class: 'brand' }, h('span', { class: 'tag' }, 'Berkas CHC-09'), 'Lab Kognitif'), h('span', { class: 'save' }, 'Tersimpan otomatis'))),
+    h('div', { class: 'stack' },
+      h('span', { class: 'eyebrow' }, 'Berkas kasus · eksplorasi diri berbasis teori Cattell-Horn-Carroll'),
+      h('h1', null, 'Sembilan ruang. Satu profil kognitifmu.'),
+      h('p', { class: 'lead' }, 'Kamu detektif sekaligus barang buktinya. Di tiap ruang laboratorium, Ina mengukur satu kemampuan luas CHC lewat dua atau lebih kemampuan sempitnya, lalu menyusunnya jadi profil kekuatan dan area pengembangan.')),
+    rooms,
+    card(h('h3', null, 'Sebelum mulai'),
+      h('div', { class: 'stack' },
+        h('div', { class: 'notice' }, h('b', null, 'Ini bukan tes IQ. '), 'Butirnya belum dinormakan pada populasi, jadi hasilnya berupa profil relatif (kekuatan dan kelemahan dalam dirimu), lengkap dengan rentang ketidakpastian. Skor tidak boleh dipakai untuk diagnosis, seleksi, atau perbandingan dengan orang lain.'),
+        h('ul', { style: 'margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px' },
+          h('li', null, 'Total sekitar 75–100 menit; boleh dicicil. Progres tersimpan di browser ini dan bisa dilanjutkan.'),
+          h('li', null, 'Tidak ada batas waktu per butir. Pengecualian: dua sprint Gs, dua tugas kelancaran Glr, dan tayangan hafalan, karena kecepatan atau paparan memang bagian dari ukurannya.'),
+          h('li', null, 'Tidak ada umpan balik benar/salah selama tes. Tebakan yang beruntung dikoreksi di skor akhir.'),
+          h('li', null, 'Kerjakan di laptop atau tablet, tempat tenang, tanpa catatan, kalkulator, atau mesin pencari. Ruang Ga butuh headphone.'),
+          h('li', null, 'Jawab jujur dan sebisamu. Tebakan wajar, tapi jangan asal pilih.'))),
+      h('div', { class: 'row' },
+        done ? h('button', { class: 'btn', onclick: showResults }, 'Lihat hasil') : h('button', { class: 'btn', onclick: () => { ST.started = true; save(); runFlow(); } }, started ? 'Lanjutkan (' + STATIONS[ST.pos].room + ')' : 'Mulai penyelidikan'),
+        (started || done) ? h('button', { class: 'btn ghost', id: 'reset', onclick: confirmReset }, 'Mulai dari awal') : null))));
+}
+function confirmReset() {
+  const b = $('#reset'); if (!b) return;
+  if (b.dataset.sure) { wipe(); introScreen(); return; }
+  b.dataset.sure = '1'; b.textContent = 'Yakin? Semua jawaban dihapus (klik lagi)';
+  setTimeout(() => { if (b.isConnected) { delete b.dataset.sure; b.textContent = 'Mulai dari awal'; } }, 4000);
+}
+function pageGate(contentNodes, btnLabel) {
+  return new Promise(res => {
+    const b = h('button', { class: 'btn', onclick: () => res() }, btnLabel);
+    setScreen(h('div', { class: 'stack-l' }, header(), card(...contentNodes, h('div', { class: 'row' }, b))));
+  });
+}
+async function stationIntro(S) {
+  await pageGate([
+    h('span', { class: 'eyebrow' }, 'Ruang ' + (ST.pos + 1) + ' dari ' + N_STATIONS + ' · ' + S.ab),
+    h('h2', null, S.room), h('p', { class: 'lead' }, S.brief),
+    h('p', { class: 'muted' }, S.tasks.filter(t => t.nar !== 'chk').length + ' tugas di ruang ini.')], 'Masuk ruang');
+}
+async function taskIntro(S, Tk) {
+  if (!Tk.instr) return;
+  await pageGate([h('span', { class: 'eyebrow' }, S.room + ' · ' + Tk.ab), h('h2', null, Tk.title), h('p', { class: 'q' }, Tk.instr)], 'Mulai tugas');
+}
+async function stationDone(S) {
+  const nx = STATIONS[ST.pos];
+  await pageGate([h('span', { class: 'eyebrow' }, 'Berkas tersegel'), h('h2', null, S.room + ' selesai'),
+    h('p', { class: 'lead' }, 'Jawabanmu tersimpan. Hasil akan dibuka setelah semua ruang selesai, supaya tidak memengaruhi ruang berikutnya.'),
+    h('p', { class: 'muted' }, 'Berikutnya: ' + nx.room + '. Boleh istirahat sebentar dulu, progres aman.')], 'Ke ' + nx.room);
+}
+async function runFlow() {
+  while (ST.pos < N_STATIONS) {
+    const S = STATIONS[ST.pos];
+    await stationIntro(S);
+    for (const Tk of S.tasks) {
+      if (ST.res[Tk.id]) continue;
+      if (Tk.needs === 'audio' && ST.audio === false) continue;
+      await taskIntro(S, Tk);
+      const parts = await Tk.run();
+      ST.res[Tk.id] = parts.map(p => Object.assign({ ab: Tk.ab }, p)); save();
+    }
+    ST.pos++; save();
+    if (ST.pos < N_STATIONS) await stationDone(S);
+  }
+  showResults();
+}
+
+/* ========== grafik ========== */
+function radarSVG(list) {
+  const N = list.length, cx = 210, cy = 200, R = 108, ang = i => -Math.PI / 2 + i * 2 * Math.PI / N;
+  const pt = (i, r) => [cx + Math.cos(ang(i)) * r, cy + Math.sin(ang(i)) * r];
+  let s = '';
+  [.25, .5, .75, 1].forEach(f => { s += `<polygon points="${list.map((_, i) => pt(i, R * f).map(v => v.toFixed(1)).join(',')).join(' ')}" style="fill:none;stroke:var(--line);stroke-width:1"/>`; });
+  list.forEach((_, i) => { const [x, y] = pt(i, R); s += `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" style="stroke:var(--line);stroke-width:1"/>`; });
+  [.5, 1].forEach(f => { s += `<text x="${cx + 4}" y="${(cy - R * f + 3).toFixed(1)}" style="font-size:9px">${f * 100}%</text>`; });
+  s += `<polygon points="${list.map((a, i) => pt(i, R * a.p).map(v => v.toFixed(1)).join(',')).join(' ')}" style="fill:var(--accent);fill-opacity:.16;stroke:var(--accent);stroke-width:2;stroke-linejoin:round"/>`;
+  list.forEach((a, i) => { const [x, y] = pt(i, R * a.p); s += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4.5" style="fill:var(--accent);stroke:var(--paper);stroke-width:2"><title>${a.ab} ${AB[a.ab].name}: ${pct(a.p)}%</title></circle>`; });
+  list.forEach((a, i) => {
+    const [x, y] = pt(i, R + 22), c = Math.cos(ang(i)), anchor = c > .3 ? 'start' : c < -.3 ? 'end' : 'middle';
+    s += `<text class="c" x="${x.toFixed(1)}" y="${(y + 1).toFixed(1)}" text-anchor="${anchor}">${a.ab}</text><text x="${x.toFixed(1)}" y="${(y + 13).toFixed(1)}" text-anchor="${anchor}" style="font-size:10px">${pct(a.p)}%</text>`;
+  });
+  return `<svg class="radar" viewBox="0 0 420 400" width="100%" style="max-width:440px" role="img" aria-label="Radar profil kemampuan CHC">${s}</svg>`;
+}
+function barRow(label, sub, o, small) {
+  const lo = pct(o.lo ?? clamp(o.p - 1.645 * o.se)), hi = pct(o.hi ?? clamp(o.p + 1.645 * o.se));
+  const tip = label + ': ' + pct(o.p) + '% (rentang 90%: ' + lo + '–' + hi + '%)';
+  return h('div', { class: 'hb' + (small ? ' sm' : ''), title: tip },
+    h('div', { class: 'nm' }, label, sub ? h('small', null, sub) : null),
+    h('div', { class: 'tr' }, h('div', { class: 'fl', style: 'width:' + pct(o.p) + '%' }), h('div', { class: 'ci', style: 'left:' + lo + '%;width:' + Math.max(0, hi - lo) + '%' })),
+    h('div', { class: 'val' }, pct(o.p) + '%'));
+}
+
+/* ========== layar hasil ========== */
+function showResults() {
+  ST.pos = N_STATIONS; save();
+  const C = compute(), L = C.list;
+  if (!L.length) { introScreen(); return; }
+  const g = Math.round(C.mean * 100);
+  const sorted = L.slice().sort((a, b) => b.d - a.d), top = sorted[0], low = sorted[sorted.length - 1];
+  const totalItems = L.reduce((s, a) => s + a.items, 0);
+  const tile = (v, l) => h('div', { class: 'tile' }, h('span', { class: 'v' }, v), h('span', { class: 'l' }, l));
+  const cl = (name, abs, note) => {
+    const xs = abs.map(a => C.abs[a]).filter(Boolean); if (xs.length < 2) return null;
+    const p = xs.reduce((s, x) => s + x.p, 0) / xs.length;
+    return h('div', { class: 'tile' }, h('span', { class: 'eyebrow' }, abs.join(' + ')), h('span', { class: 'v' }, pct(p) + '%'), h('span', { class: 'l' }, h('b', null, name + '. '), note));
+  };
+  const gf = C.abs.Gf, gc = C.abs.Gc;
+  const gfgc = gf && gc ? (gf.p - gc.p > .12 ? 'Penalaran lebih kuat dari pengetahuan terkumpul; pengetahuan bisa dikejar lewat paparan.' : gc.p - gf.p > .12 ? 'Pengetahuan terkumpul lebih kuat dari penalaran pada masalah baru; kamu mungkin banyak bertumpu pada pengalaman.' : 'Penalaran dan pengetahuan relatif seimbang.') : '';
+  const abCards = L.map(A => {
+    const M = AB[A.ab], rel = A.rel;
+    const chip = rel === 'up' ? h('span', { class: 'chip up' }, 'Kekuatan relatif') : rel === 'dn' ? h('span', { class: 'chip dn' }, 'Area pengembangan') : h('span', { class: 'chip' }, 'Selaras dengan rata-ratamu');
+    const msg = rel === 'up' ? M.hi : rel === 'dn' ? M.lo : 'Kemampuan ini berada di sekitar rata-rata profilmu sendiri, jadi tidak menonjol ke atas maupun ke bawah. ' + M.def.split('. ')[0] + '.';
+    return h('section', { class: 'card abcard', id: 'ab-' + A.ab },
+      h('div', { class: 'abhead' }, h('div', null, h('span', { class: 'eyebrow' }, M.room + ' · ' + A.ab + ' · ' + M.en), h('h3', null, M.name)), h('div', { style: 'text-align:right' }, h('div', { class: 'pct' }, pct(A.p) + '%'), h('span', { class: 'muted', style: 'font-size:13px' }, band(A.p) + ' · ±' + pct(1.645 * A.se) + ' poin'))),
+      h('div', { class: 'row' }, chip, h('span', { class: 'chip' }, (A.d >= 0 ? '+' : '') + Math.round(A.d * 100) + ' poin dari rata-ratamu')),
+      h('div', null, h('h4', null, 'Apa itu'), h('p', null, M.def)),
+      h('div', null, h('h4', null, 'Kemampuan sempit yang diukur'), h('div', { class: 'hbars' }, A.nars.map(n => barRow(NARROW[n.ab + '.' + n.nar] || n.nar, '', n, true)))),
+      h('div', null, h('h4', null, 'Bacaan Ina untuk profilmu'), h('p', null, msg), A.ab === 'Gs' && A.nars.length === 1 ? h('p', { class: 'muted' }, 'Hanya satu sprint terhitung.') : null),
+      h('div', null, h('h4', null, 'Cara mengembangkan / memanfaatkan'), h('ul', null, M.tips.map(t => h('li', null, t)))),
+      M.note ? h('p', { class: 'muted', style: 'font-size:14px' }, M.note) : null);
+  });
+  const rows = L.map(A => h('tr', null, h('td', null, A.ab + ' ' + AB[A.ab].name), h('td', { class: 'n' }, pct(A.p) + '%'), h('td', { class: 'n' }, pct(A.lo) + '–' + pct(A.hi) + '%'), h('td', null, band(A.p)), h('td', null, A.rel === 'up' ? 'Kekuatan relatif' : A.rel === 'dn' ? 'Area pengembangan' : 'Selaras'), h('td', { class: 'n' }, A.items)));
+  const narRows = L.flatMap(A => A.nars.map(n => h('tr', null, h('td', null, n.ab), h('td', null, NARROW[n.ab + '.' + n.nar] || n.nar), h('td', { class: 'n' }, pct(n.p) + '%'), h('td', { class: 'n' }, n.n % 1 ? n.n.toFixed(1) : n.n))));
+  const rsInfo = ST.rs ? 'Kecepatan baca: ±' + ST.rs.wpm + ' kata/menit, pemahaman ' + ST.rs.acc + '.' : '';
+  const gaMissing = ST.audio === false ? h('div', { class: 'notice' }, h('b', null, 'Ga tidak dihitung. '), 'Kamu melewati ruang suara, jadi Ga tidak ada di profil dan tidak ikut rata-rata.') : null;
+
+  setScreen(h('div', { class: 'stack-l' },
+    h('header', { class: 'top' }, h('div', { class: 'top-in' }, h('div', { class: 'brand' }, h('span', { class: 'tag' }, 'Berkas CHC-09'), 'Dokumen hasil'), h('span', { class: 'save noprint' }, new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })))),
+    h('div', { class: 'stack' },
+      h('span', { class: 'eyebrow' }, 'Dokumen hasil · profil kognitif berbasis CHC'),
+      h('h1', null, 'Profil kognitifmu'),
+      h('p', { class: 'lead' }, 'Ini profil relatif dari ' + L.length + ' kemampuan luas CHC dan ' + L.reduce((s, a) => s + a.nars.length, 0) + ' kemampuan sempit. Baca sebagai pola kekuatan dan area pengembangan dalam dirimu, bukan sebagai angka IQ.')),
+    gaMissing,
+    h('div', { class: 'tiles' },
+      tile(g + '%', 'Indeks kasar (rata-rata ' + L.length + ' kemampuan). Mendekati konsep faktor umum (g), bukan IQ.'),
+      tile(top.ab, 'Kekuatan relatif terbesar: ' + AB[top.ab].name + ' (' + (top.d >= 0 ? '+' : '') + Math.round(top.d * 100) + ' poin)'),
+      tile(low.ab, 'Paling rendah relatif: ' + AB[low.ab].name + ' (' + Math.round(low.d * 100) + ' poin)'),
+      tile(String(totalItems), 'Butir dan respons terhitung, setelah koreksi tebakan')),
+    card(h('div', { class: 'item-h' }, h('h2', null, 'Profil sembilan kemampuan'), h('span', { class: 'eyebrow' }, '% penguasaan · garis = rentang 90%')),
+      h('div', { class: 'two' }, h('div', { html: radarSVG(L) }), h('div', { class: 'hbars' }, L.map(A => barRow(A.ab + ' ' + AB[A.ab].name, AB[A.ab].en, A)))),
+      h('p', { class: 'muted', style: 'font-size:14px' }, 'Persentase = proporsi penguasaan butir tes ini setelah koreksi tebakan, bukan persentil populasi. Garis tebal pada batang adalah rentang kepercayaan 90%: kalau dua batang tumpang tindih, perbedaannya belum bisa dipastikan.')),
+    card(h('h2', null, 'Klaster interpretif'), h('p', { class: 'muted' }, 'Gabungan yang lazim dipakai dalam interpretasi baterai CHC.'),
+      h('div', { class: 'tiles' }, cl('Penalaran dan pengetahuan', ['Gf', 'Gc'], gfgc), cl('Efisiensi kognitif', ['Gwm', 'Gs'], 'Seberapa lancar otak memproses dan menahan informasi sekaligus. Dua-duanya sensitif terhadap kelelahan.'), cl('Kefasihan akademik', ['Gq', 'Grw'], 'Perangkat pengetahuan untuk kerja akademik: angka dan teks.'))),
+    h('div', { class: 'stack' }, h('h2', null, 'Rincian per kemampuan'), abCards),
+    card(h('h2', null, 'Tabel data'),
+      h('div', { class: 'tbl' }, h('table', null, h('thead', null, h('tr', null, ['Kemampuan', '%', 'Rentang 90%', 'Tingkat', 'Relatif', 'Butir'].map(x => h('th', null, x)))), h('tbody', null, rows))),
+      h('details', null, h('summary', null, 'Lihat per kemampuan sempit'), h('div', { class: 'tbl' }, h('table', null, h('thead', null, h('tr', null, ['CHC', 'Kemampuan sempit', '%', 'Butir'].map(x => h('th', null, x)))), h('tbody', null, narRows))), rsInfo ? h('p', { class: 'muted' }, rsInfo) : null)),
+    card(h('h2', null, 'Cara membaca dan batasannya'),
+      h('details', null, h('summary', null, 'Metode skor'), h('div', { class: 'stack' },
+        h('p', null, 'Setiap kemampuan luas dihitung dari rata-rata kemampuan sempitnya, dengan bobot sama, karena CHC mendefinisikan kemampuan luas lewat beberapa kemampuan sempit. Skor tiap kemampuan sempit dikoreksi tebakan: (benar − peluang tebak) / (1 − peluang tebak).'),
+        h('p', null, 'Rentang 90% memakai galat baku binomial per kemampuan sempit, digabung ke tingkat luas. Perkiraan ini lebar karena butirnya sedikit per kemampuan sempit.'),
+        h('p', null, 'Label "kekuatan relatif" dan "area pengembangan" muncul bila selisih dari rata-rata profilmu melebihi 7 poin dan 1,28 kali galat bakunya. Label tingkat (Perlu dikembangkan sampai Sangat kuat) memakai ambang 25, 45, 65, dan 80% dari skor terkoreksi dan bukan persentil.'),
+        h('p', null, 'Gs, kelancaran Glr, dan kecepatan membaca memakai acuan kasar (misalnya 48 jawaban benar untuk 100% pada sprint perbandingan). Acuan ini perkiraan, bukan norma.'))),
+      h('details', null, h('summary', null, 'Mengapa ini bukan tes IQ'), h('div', { class: 'stack' },
+        h('p', null, 'Tes IQ klinis (WAIS, WJ IV, KABC-II, dan sejenisnya) dinormakan pada sampel representatif, diuji reliabilitas dan validitasnya, dan dilakukan oleh penguji terlatih dalam kondisi baku. Tes ini tidak punya semua itu. Yang dijaga adalah kesesuaian teorinya: struktur kemampuan, definisi, dan jenis tugas mengikuti CHC.'),
+        h('p', null, 'Faktor yang bisa memengaruhi hasil: kantuk, kebisingan, perangkat (mouse, layar sentuh, audio), kebiasaan dengan format soal, dan motivasi. Untuk keputusan penting, temui psikolog berlisensi.'))),
+      h('details', null, h('summary', null, 'Sumber teori'), h('div', { class: 'stack' },
+        h('p', null, 'Carroll, J. B. (1993). Human cognitive abilities: A survey of factor-analytic studies. Cambridge University Press.'),
+        h('p', null, 'McGrew, K. S. (2009). CHC theory and the human cognitive abilities project. Intelligence, 37(1), 1–10.'),
+        h('p', null, 'Schneider, W. J., & McGrew, K. S. (2018). The Cattell-Horn-Carroll theory of cognitive abilities. Dalam D. P. Flanagan & E. M. McDonough (Eds.), Contemporary intellectual assessment (edisi ke-4). Guilford Press.')))),
+    h('div', { class: 'row noprint' },
+      h('button', { class: 'btn', onclick: copySummary }, 'Salin ringkasan'),
+      h('button', { class: 'btn ghost', onclick: introScreen }, 'Kembali ke awal'),
+      h('button', { class: 'btn ghost', id: 'reset', onclick: confirmReset }, 'Ulangi dari awal')),
+    h('textarea', { id: 'sumbox', class: 'field', hidden: true, 'aria-label': 'ringkasan hasil', style: 'min-height:160px;font-size:14px' })));
+}
+function summaryText() {
+  const C = compute();
+  return ['PROFIL KOGNITIF CHC (Berkas CHC-09), bukan IQ', ...C.list.map(A => `${A.ab} ${AB[A.ab].name}: ${pct(A.p)}% (90%: ${pct(A.lo)}-${pct(A.hi)}%), ${A.rel === 'up' ? 'kekuatan relatif' : A.rel === 'dn' ? 'area pengembangan' : 'selaras'}`), `Indeks kasar: ${pct(C.mean)}%`].join('\n');
+}
+function copySummary() {
+  const t = summaryText(), box = $('#sumbox'), b = event && event.target;
+  const fb = () => { box.hidden = false; box.value = t; box.select(); if (b) b.textContent = 'Ringkasan ada di kotak di bawah'; };
+  try { navigator.clipboard.writeText(t).then(() => { if (b) b.textContent = 'Tersalin'; }, fb); } catch (e) { fb(); }
+}
+
+/* ========== start ========== */
+load();
+if (ST.pos >= N_STATIONS) showResults(); else introScreen();
+</script>
+
+</body></html>
